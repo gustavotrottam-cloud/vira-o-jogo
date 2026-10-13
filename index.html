@@ -90,7 +90,7 @@ footer b{color:var(--on2)}
 
 <section id="gate" class="card">
   <h2>Abra a calculadora</h2>
-  <p>Deixe seu nome e seu WhatsApp. As três contas da palestra abrem na hora, e a semana de treinos chega no seu celular.</p>
+  <p>Deixe seu nome e seu WhatsApp. As três contas da palestra abrem na hora. E, depois da palestra, você recebe no WhatsApp a semana de treinos: um treino por dia, de dois minutos, durante sete dias.</p>
   <form id="form" novalidate>
     <label for="nome">Seu nome<input type="text" id="nome" autocomplete="name" placeholder="Como você quer ser chamado" required></label>
     <label for="fone">Seu WhatsApp<input type="tel" id="fone" inputmode="tel" autocomplete="tel" placeholder="(32) 99999-9999" required></label>
@@ -235,14 +235,17 @@ function calcLongo() {
 ['g-valor', 'g-tipo', 'g-meses'].forEach(function (id) { $(id).addEventListener('input', calcGol); });
 ['l-dia', 'l-anos'].forEach(function (id) { $(id).addEventListener('input', calcLongo); });
 
-/* abas */
+/* abas · o QR de cada slide abre direto na conta certa: #placar, #gol ou #longo */
+function mostrarAba(nome, rolar) {
+  if (!document.getElementById('aba-' + nome)) nome = 'placar';
+  document.querySelectorAll('.abas button').forEach(function (x) { x.classList.toggle('on', x.getAttribute('data-aba') === nome); });
+  document.querySelectorAll('.aba').forEach(function (s) { s.classList.toggle('on', s.id === 'aba-' + nome); });
+  if (rolar) window.scrollTo({ top: $('app').offsetTop - 8, behavior: 'smooth' });
+}
 document.querySelectorAll('.abas button').forEach(function (b) {
-  b.addEventListener('click', function () {
-    document.querySelectorAll('.abas button').forEach(function (x) { x.classList.toggle('on', x === b); });
-    document.querySelectorAll('.aba').forEach(function (s) { s.classList.toggle('on', s.id === 'aba-' + b.getAttribute('data-aba')); });
-    window.scrollTo({ top: $('app').offsetTop - 8, behavior: 'smooth' });
-  });
+  b.addEventListener('click', function () { mostrarAba(b.getAttribute('data-aba'), true); });
 });
+function abaDoEndereco() { var h = (location.hash || '').replace('#', ''); return h === 'gol' || h === 'longo' ? h : 'placar'; }
 
 /* ---------- o cadastro ---------- */
 function soDigitos(s) { return String(s).replace(/\D/g, ''); }
@@ -257,9 +260,11 @@ $('fone').addEventListener('input', function () { this.value = formataFone(this.
 
 function abrir(nome) {
   $('gate').hidden = true; $('app').hidden = false;
-  $('ola').textContent = nome ? 'Bom jogo, ' + nome.split(' ')[0] + '.' : '';
+  $('ola').textContent = nome ? 'Bom jogo, ' + nome.split(' ')[0] + '. A semana de treinos chega no seu WhatsApp depois da palestra.' : '';
   calcPlacar(); calcGol(); calcLongo();
+  mostrarAba(abaDoEndereco(), false);
 }
+window.addEventListener('hashchange', function () { if (!$('app').hidden) mostrarAba(abaDoEndereco(), true); });
 function enviar(dados) {
   if (!ENDPOINT) return Promise.resolve(true);
   return fetch(ENDPOINT, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(dados) })
