@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Vira o jogo · Calculadora do placar</title>
-<meta name="description" content="As três contas da palestra Vira o jogo, no celular: o placar do mês, o gol contra da dívida e o jogo longo.">
+<meta name="description" content="As contas da palestra Vira o jogo, no celular: o placar do mês, os frangos, o gol contra da dívida e o jogo longo.">
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap">
 <style>
 /* Calculadora do placar · Vira o jogo · Gustavo Trotta
-   Página de celular, de uso único: a pessoa deixa nome e WhatsApp, e as três contas abrem.
+   Página de celular, de uso único: a pessoa deixa nome e WhatsApp, e as contas abrem.
    Um tema só, de propósito: o campo da palestra. */
 :root{
   --grass:#0B4A2C; --grass2:#073420; --lime:#C9F31D; --lime2:#EAFF7A;
@@ -46,13 +46,19 @@ input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid 
 .btn:disabled{opacity:.6;cursor:wait}
 .erro{color:var(--neg);font-weight:600;font-size:15px}
 .ola{font-size:15px;color:var(--on3);margin-top:12px;text-align:center}
-.abas{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:20px}
-.abas button{font-family:var(--display);font-size:18px;letter-spacing:.03em;padding:11px 4px 8px;border-radius:12px;border:2px solid rgba(201,243,29,.35);background:transparent;color:var(--on2);cursor:pointer;line-height:1}
+.abas{display:flex;flex-wrap:wrap;gap:6px;margin-top:20px}
+.abas button{flex:1 1 calc(33.333% - 6px);min-width:96px;font-family:var(--display);font-size:18px;letter-spacing:.03em;padding:11px 4px 8px;border-radius:12px;border:2px solid rgba(201,243,29,.35);background:transparent;color:var(--on2);cursor:pointer;line-height:1}
 .treinos{display:grid;gap:10px;margin-top:14px}
 .treino{display:grid;grid-template-columns:54px 1fr;gap:12px;align-items:start;background:rgba(255,255,255,.06);border-radius:12px;padding:12px 14px}
 .treino .d{font-family:var(--display);font-size:40px;line-height:.9;color:var(--lime)}
 .treino b{display:block;font-size:17px;color:#fff;margin-bottom:4px}
 .treino p{font-size:15px;line-height:1.45;color:var(--on2);margin:0}
+.frangos{display:grid;gap:8px;margin-top:14px}
+.frango{display:grid;grid-template-columns:28px 1fr 118px;gap:10px;align-items:center;background:rgba(255,255,255,.06);border-radius:12px;padding:10px 12px;font-weight:400;font-size:15px;line-height:1.3;color:var(--on)}
+.frango.on{background:rgba(201,243,29,.12)}
+.frango input[type=checkbox]{width:24px;height:24px;accent-color:var(--lime)}
+.frango .prefixo input{padding:9px 10px 9px 38px;font-size:16px}
+.frango .prefixo::before{left:11px;font-size:15px}
 .abas button.on{background:var(--lime);color:var(--night);border-color:var(--lime)}
 .aba{display:none}
 .aba.on{display:block}
@@ -95,7 +101,7 @@ footer b{color:var(--on2)}
 
 <section id="gate" class="card">
   <h2>Abra a calculadora</h2>
-  <p>Deixe seu nome e seu WhatsApp. As três contas da palestra e a semana de treinos abrem na hora, e ficam aqui para quando você quiser voltar.</p>
+  <p>Deixe seu nome e seu WhatsApp. As contas da palestra e a semana de treinos abrem na hora, e ficam aqui para quando você quiser voltar.</p>
   <form id="form" novalidate>
     <label for="nome">Seu nome<input type="text" id="nome" autocomplete="name" placeholder="Como você quer ser chamado" required></label>
     <label for="fone">Seu WhatsApp<input type="tel" id="fone" inputmode="tel" autocomplete="tel" placeholder="(32) 99999-9999" required></label>
@@ -107,8 +113,9 @@ footer b{color:var(--on2)}
 
 <main id="app" hidden>
   <p class="ola" id="ola"></p>
-  <nav class="abas" aria-label="As três contas">
+  <nav class="abas" aria-label="As contas">
     <button type="button" data-aba="placar" class="on">Placar</button>
+    <button type="button" data-aba="frangos">Frangos</button>
     <button type="button" data-aba="gol">Gol contra</button>
     <button type="button" data-aba="longo">Jogo longo</button>
     <button type="button" data-aba="treinos">Treinos</button>
@@ -130,6 +137,26 @@ footer b{color:var(--on2)}
     <p class="nota">Não precisa ser exato. Valor aproximado já serve.</p>
   </section>
 
+  <section class="card aba" id="aba-frangos">
+    <h2>Os frangos do mês</h2>
+    <p>O que sai da conta todo mês sem você usar. Marque os seus e acerte o valor.</p>
+    <div class="frangos">
+      <label class="frango"><input type="checkbox" class="f-on"><span>Streaming que ninguém assiste</span><span class="prefixo"><input type="number" class="f-v" inputmode="decimal" min="0" step="5" value="30"></span></label>
+      <label class="frango"><input type="checkbox" class="f-on"><span>Pacote de tarifas do banco</span><span class="prefixo"><input type="number" class="f-v" inputmode="decimal" min="0" step="5" value="30"></span></label>
+      <label class="frango"><input type="checkbox" class="f-on"><span>Seguro ou "proteção" que você não pediu</span><span class="prefixo"><input type="number" class="f-v" inputmode="decimal" min="0" step="5" value="25"></span></label>
+      <label class="frango"><input type="checkbox" class="f-on"><span>Pacote do celular maior que o uso</span><span class="prefixo"><input type="number" class="f-v" inputmode="decimal" min="0" step="5" value="20"></span></label>
+      <label class="frango"><input type="checkbox" class="f-on"><span>Taxa de entrega do delivery</span><span class="prefixo"><input type="number" class="f-v" inputmode="decimal" min="0" step="5" value="40"></span></label>
+      <label class="frango"><input type="checkbox" class="f-on"><span>Assinatura de app que renovou sozinha</span><span class="prefixo"><input type="number" class="f-v" inputmode="decimal" min="0" step="5" value="15"></span></label>
+    </div>
+    <div class="resultado" aria-live="polite">
+      <div class="rot">Os frangos levam, por mês</div>
+      <div class="num" id="f-num">R$ 0</div>
+      <div class="duas"><div><span>Por ano</span><b id="f-ano">R$ 0</b></div><div><span>Paga o automático por</span><b id="f-auto">0</b></div></div>
+      <p class="msg" id="f-msg">Marque os frangos que você tem.</p>
+    </div>
+    <p class="nota">Valores de exemplo. Pela regra do Banco Central, todo banco tem que oferecer uma conta com os serviços básicos sem tarifa: pergunte no seu.</p>
+    <p class="nota">A bet não é frango: é um buraco. Se a aposta virou segredo, tem ajuda de graça no SUS: o aplicativo Meu SUS Digital, o posto de saúde (UBS) e o CAPS.</p>
+  </section>
   <section class="card aba" id="aba-gol">
     <h2>Gol contra</h2>
     <p>Quanto vira uma dívida que fica sem pagar.</p>
@@ -176,7 +203,7 @@ footer b{color:var(--on2)}
     <p>Um treino por dia, de dois minutos, durante sete dias. Faça na ordem.</p>
     <div class="treinos">
       <div class="treino"><span class="d">1</span><div><b>Descubra o seu placar do mês</b><p>O que entra, menos as contas da casa (aluguel, luz, água, mercado, ônibus), menos as parcelas. Deu negativo? De cada dez pessoas, cinco estão assim. Agora você sabe o placar. A aba "Placar" faz a conta.</p></div></div>
-      <div class="treino"><span class="d">2</span><div><b>Some todas as parcelinhas</b><p>Abra o app do cartão, a gaveta dos carnês e as lojas onde você parcelou. Anote cada parcela do mês e some. Esse é o pedaço do salário que já está comprometido antes de o mês começar.</p></div></div>
+      <div class="treino"><span class="d">2</span><div><b>Some as parcelinhas e cace os frangos</b><p>Abra o app do cartão e o extrato do banco. Anote cada parcela do mês e some. Depois cace os frangos: assinatura que ninguém assiste, pacote do banco, seguro que você não pediu. Cancele um hoje. A aba "Frangos" faz a conta.</p></div></div>
       <div class="treino"><span class="d">3</span><div><b>Liste as dívidas e circule a mais cara</b><p>Para cada dívida: o que é, quanto falta, a parcela e o juro por mês (está na fatura ou no contrato). Circule a de maior juro, quase sempre o rotativo do cartão. Ela é a primeira da fila; nas outras, o mínimo.</p></div></div>
       <div class="treino"><span class="d">4</span><div><b>Ligue para fazer acordo e pergunte o preço total</b><p>Ligue para quem você deve e diga que quer regularizar. Pergunte o desconto para pagar à vista e, se parcelar, o preço total com tudo dentro, o tal do CET. Anote antes de aceitar.</p></div></div>
       <div class="treino"><span class="d">5</span><div><b>Marque a conversa de dinheiro em casa</b><p>Vinte minutos com quem divide as contas. Três perguntas: quanto entrou? Quanto saiu? Qual é o próximo passo? Uma decisão só, com dono e data.</p></div></div>
@@ -231,6 +258,22 @@ function calcPlacar() {
     : n === 0 ? 'Empate. <b>Nada sobra, nada falta. O automático começa pequeno: R$ 2 por dia.</b>'
     : 'Sobrou ' + brl(n) + '. <b>Você tem com o que abastecer o futuro. Comece pelo goleiro: a reserva.</b>';
 }
+/* os frangos do mês */
+function calcFrangos() {
+  var total = 0;
+  document.querySelectorAll('#aba-frangos .frango').forEach(function (l) {
+    var on = l.querySelector('.f-on').checked, v = parseFloat(String(l.querySelector('.f-v').value).replace(',', '.'));
+    if (on && !isNaN(v)) total += v;
+    l.classList.toggle('on', on);
+  });
+  var ano = total * 12, entra = num('p-entra'), meses = Math.floor(ano / 60);
+  var el = $('f-num'); el.textContent = brl(total); pulo(el);
+  $('f-ano').textContent = brl(ano);
+  $('f-auto').textContent = total > 0 ? meses + (meses === 1 ? ' mês' : ' meses') : '0';
+  $('f-msg').innerHTML = total <= 0 ? 'Marque os frangos que você tem.'
+    : (entra > 0 && ano >= entra ? '<b>Em um ano, os frangos levam mais que um salário inteiro.</b> ' : '')
+      + (total >= 60 ? 'Um frango cortado paga o automático inteiro: <b>R$ 2 por dia.</b>' : 'Já é um pedaço do automático de <b>R$ 60 por mês.</b>');
+}
 /* gol contra */
 function calcGol() {
   var valor = num('g-valor'), tipo = $('g-tipo').value, meses = parseInt($('g-meses').value, 10);
@@ -252,11 +295,12 @@ function calcLongo() {
   $('l-guardou').textContent = brl(r.guardou); $('l-rendeu').textContent = brl(r.rendeu);
   $('l-gol').hidden = r.rendeu < r.guardou;  /* o gol é quando o rendimento passa o que foi guardado */
 }
-['p-entra', 'p-casa', 'p-parc'].forEach(function (id) { $(id).addEventListener('input', calcPlacar); });
+['p-entra', 'p-casa', 'p-parc'].forEach(function (id) { $(id).addEventListener('input', function () { calcPlacar(); calcFrangos(); }); });
+document.querySelectorAll('#aba-frangos input').forEach(function (el) { el.addEventListener('input', calcFrangos); el.addEventListener('change', calcFrangos); });
 ['g-valor', 'g-tipo', 'g-meses'].forEach(function (id) { $(id).addEventListener('input', calcGol); });
 ['l-dia', 'l-anos'].forEach(function (id) { $(id).addEventListener('input', calcLongo); });
 
-/* abas · o QR de cada slide abre direto na conta certa: #placar, #gol ou #longo */
+/* abas · o QR de cada slide abre direto na conta certa: #placar, #frangos, #gol, #longo ou #treinos */
 function mostrarAba(nome, rolar) {
   if (!document.getElementById('aba-' + nome)) nome = 'placar';
   document.querySelectorAll('.abas button').forEach(function (x) { x.classList.toggle('on', x.getAttribute('data-aba') === nome); });
@@ -266,7 +310,7 @@ function mostrarAba(nome, rolar) {
 document.querySelectorAll('.abas button').forEach(function (b) {
   b.addEventListener('click', function () { mostrarAba(b.getAttribute('data-aba'), true); });
 });
-function abaDoEndereco() { var h = (location.hash || '').replace('#', ''); return h === 'gol' || h === 'longo' || h === 'treinos' ? h : 'placar'; }
+function abaDoEndereco() { var h = (location.hash || '').replace('#', ''); return ['frangos', 'gol', 'longo', 'treinos'].indexOf(h) >= 0 ? h : 'placar'; }
 
 /* ---------- o cadastro ---------- */
 function soDigitos(s) { return String(s).replace(/\D/g, ''); }
@@ -282,7 +326,7 @@ $('fone').addEventListener('input', function () { this.value = formataFone(this.
 function abrir(nome) {
   $('gate').hidden = true; $('app').hidden = false;
   $('ola').textContent = nome ? 'Bom jogo, ' + nome.split(' ')[0] + '. As contas e a semana de treinos estão aqui.' : '';
-  calcPlacar(); calcGol(); calcLongo();
+  calcPlacar(); calcFrangos(); calcGol(); calcLongo();
   mostrarAba(abaDoEndereco(), false);
 }
 window.addEventListener('hashchange', function () { if (!$('app').hidden) mostrarAba(abaDoEndereco(), true); });
