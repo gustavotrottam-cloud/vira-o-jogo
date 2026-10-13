@@ -46,8 +46,13 @@ input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid 
 .btn:disabled{opacity:.6;cursor:wait}
 .erro{color:var(--neg);font-weight:600;font-size:15px}
 .ola{font-size:15px;color:var(--on3);margin-top:12px;text-align:center}
-.abas{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:20px}
-.abas button{font-family:var(--display);font-size:22px;letter-spacing:.04em;padding:12px 6px 9px;border-radius:12px;border:2px solid rgba(201,243,29,.35);background:transparent;color:var(--on2);cursor:pointer;line-height:1}
+.abas{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:20px}
+.abas button{font-family:var(--display);font-size:18px;letter-spacing:.03em;padding:11px 4px 8px;border-radius:12px;border:2px solid rgba(201,243,29,.35);background:transparent;color:var(--on2);cursor:pointer;line-height:1}
+.treinos{display:grid;gap:10px;margin-top:14px}
+.treino{display:grid;grid-template-columns:54px 1fr;gap:12px;align-items:start;background:rgba(255,255,255,.06);border-radius:12px;padding:12px 14px}
+.treino .d{font-family:var(--display);font-size:40px;line-height:.9;color:var(--lime)}
+.treino b{display:block;font-size:17px;color:#fff;margin-bottom:4px}
+.treino p{font-size:15px;line-height:1.45;color:var(--on2);margin:0}
 .abas button.on{background:var(--lime);color:var(--night);border-color:var(--lime)}
 .aba{display:none}
 .aba.on{display:block}
@@ -90,11 +95,11 @@ footer b{color:var(--on2)}
 
 <section id="gate" class="card">
   <h2>Abra a calculadora</h2>
-  <p>Deixe seu nome e seu WhatsApp. As três contas da palestra abrem na hora. E, depois da palestra, você recebe no WhatsApp a semana de treinos: um treino por dia, de dois minutos, durante sete dias.</p>
+  <p>Deixe seu nome e seu WhatsApp. As três contas da palestra e a semana de treinos abrem na hora, e ficam aqui para quando você quiser voltar.</p>
   <form id="form" novalidate>
     <label for="nome">Seu nome<input type="text" id="nome" autocomplete="name" placeholder="Como você quer ser chamado" required></label>
     <label for="fone">Seu WhatsApp<input type="tel" id="fone" inputmode="tel" autocomplete="tel" placeholder="(32) 99999-9999" required></label>
-    <label class="chk" for="ok"><input type="checkbox" id="ok" required><span>Autorizo o Gustavo Trotta a guardar meu nome e meu WhatsApp para me mandar o material da palestra e falar comigo sobre dinheiro. Posso pedir para apagar quando quiser.</span></label>
+    <label class="chk" for="ok"><input type="checkbox" id="ok" required><span>Autorizo o Gustavo Trotta a guardar meu nome e meu WhatsApp e a me procurar para falar de dinheiro. Posso pedir para apagar quando quiser.</span></label>
     <button type="submit" class="btn" id="enviar">Abrir a calculadora</button>
     <p class="erro" id="erro" hidden></p>
   </form>
@@ -106,6 +111,7 @@ footer b{color:var(--on2)}
     <button type="button" data-aba="placar" class="on">Placar</button>
     <button type="button" data-aba="gol">Gol contra</button>
     <button type="button" data-aba="longo">Jogo longo</button>
+    <button type="button" data-aba="treinos">Treinos</button>
   </nav>
 
   <section class="card aba on" id="aba-placar">
@@ -163,6 +169,21 @@ footer b{color:var(--on2)}
       <span class="gol" id="l-gol">Gooool!</span>
     </div>
     <p class="nota">Exemplo com 1% ao mês, bruto, sem descontar imposto nem inflação. Não é promessa nem indicação de investimento.</p>
+  </section>
+
+  <section class="card aba" id="aba-treinos">
+    <h2>A semana de treinos</h2>
+    <p>Um treino por dia, de dois minutos, durante sete dias. Faça na ordem.</p>
+    <div class="treinos">
+      <div class="treino"><span class="d">1</span><div><b>Descubra o seu placar do mês</b><p>O que entra, menos as contas da casa (aluguel, luz, água, mercado, ônibus), menos as parcelas. Deu negativo? De cada dez pessoas, cinco estão assim. Agora você sabe o placar. A aba "Placar" faz a conta.</p></div></div>
+      <div class="treino"><span class="d">2</span><div><b>Some todas as parcelinhas</b><p>Abra o app do cartão, a gaveta dos carnês e as lojas onde você parcelou. Anote cada parcela do mês e some. Esse é o pedaço do salário que já está comprometido antes de o mês começar.</p></div></div>
+      <div class="treino"><span class="d">3</span><div><b>Liste as dívidas e circule a mais cara</b><p>Para cada dívida: o que é, quanto falta, a parcela e o juro por mês (está na fatura ou no contrato). Circule a de maior juro, quase sempre o rotativo do cartão. Ela é a primeira da fila; nas outras, o mínimo.</p></div></div>
+      <div class="treino"><span class="d">4</span><div><b>Ligue para fazer acordo e pergunte o preço total</b><p>Ligue para quem você deve e diga que quer regularizar. Pergunte o desconto para pagar à vista e, se parcelar, o preço total com tudo dentro, o tal do CET. Anote antes de aceitar.</p></div></div>
+      <div class="treino"><span class="d">5</span><div><b>Marque a conversa de dinheiro em casa</b><p>Vinte minutos com quem divide as contas. Três perguntas: quanto entrou? Quanto saiu? Qual é o próximo passo? Uma decisão só, com dono e data.</p></div></div>
+      <div class="treino"><span class="d">6</span><div><b>Programe o automático</b><p>No app do banco, uma transferência automática para o dia do salário: R$ 2 por dia, R$ 60 por mês, para uma conta separada do cartão, de onde dá para tirar na hora e sem risco de perder.</p></div></div>
+      <div class="treino"><span class="d">7</span><div><b>Dê nome ao gol e comemore</b><p>Escreva a meta, o valor e o mês. Cole na geladeira. Meta com nome e data é meta que acontece. A aba "Jogo longo" mostra aonde ela chega.</p></div></div>
+    </div>
+    <p class="nota">A mesma semana está na folha que o RH entrega. Esta página fica aberta para você voltar quando quiser.</p>
   </section>
 </main>
 
@@ -245,7 +266,7 @@ function mostrarAba(nome, rolar) {
 document.querySelectorAll('.abas button').forEach(function (b) {
   b.addEventListener('click', function () { mostrarAba(b.getAttribute('data-aba'), true); });
 });
-function abaDoEndereco() { var h = (location.hash || '').replace('#', ''); return h === 'gol' || h === 'longo' ? h : 'placar'; }
+function abaDoEndereco() { var h = (location.hash || '').replace('#', ''); return h === 'gol' || h === 'longo' || h === 'treinos' ? h : 'placar'; }
 
 /* ---------- o cadastro ---------- */
 function soDigitos(s) { return String(s).replace(/\D/g, ''); }
@@ -260,7 +281,7 @@ $('fone').addEventListener('input', function () { this.value = formataFone(this.
 
 function abrir(nome) {
   $('gate').hidden = true; $('app').hidden = false;
-  $('ola').textContent = nome ? 'Bom jogo, ' + nome.split(' ')[0] + '. A semana de treinos chega no seu WhatsApp depois da palestra.' : '';
+  $('ola').textContent = nome ? 'Bom jogo, ' + nome.split(' ')[0] + '. As contas e a semana de treinos estão aqui.' : '';
   calcPlacar(); calcGol(); calcLongo();
   mostrarAba(abaDoEndereco(), false);
 }
