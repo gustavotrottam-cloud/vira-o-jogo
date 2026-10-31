@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap">
 <style>
 /* Calculadora do placar · Vira o jogo · Gustavo Trotta
-   Página de celular, de uso único: a pessoa deixa nome e WhatsApp, e as contas abrem.
+   Página de celular, anônima: abre direto, sem cadastro, e não envia nada a ninguém.
    Um tema só, de propósito: o campo da palestra. */
 :root{
   --grass:#0B4A2C; --grass2:#073420; --lime:#C9F31D; --lime2:#EAFF7A;
@@ -45,7 +45,6 @@ input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid 
 .btn{display:block;width:100%;font-family:var(--display);font-size:28px;letter-spacing:.06em;padding:16px 20px 12px;border:0;border-radius:14px;background:var(--lime);color:var(--night);cursor:pointer}
 .btn:disabled{opacity:.6;cursor:wait}
 .erro{color:var(--neg);font-weight:600;font-size:15px}
-.ola{font-size:15px;color:var(--on3);margin-top:12px;text-align:center}
 .abas{display:flex;flex-wrap:wrap;gap:6px;margin-top:20px}
 .abas button{flex:1 1 calc(33.333% - 6px);min-width:96px;font-family:var(--display);font-size:18px;letter-spacing:.03em;padding:11px 4px 8px;border-radius:12px;border:2px solid rgba(201,243,29,.35);background:transparent;color:var(--on2);cursor:pointer;line-height:1}
 .treinos{display:grid;gap:10px;margin-top:14px}
@@ -99,20 +98,8 @@ footer b{color:var(--on2)}
   <p class="sub">A calculadora do placar, no seu celular.</p>
 </header>
 
-<section id="gate" class="card">
-  <h2>Abra a calculadora</h2>
-  <p>Deixe seu nome e seu WhatsApp. As contas da palestra e a semana de treinos abrem na hora, e ficam aqui para quando você quiser voltar.</p>
-  <form id="form" novalidate>
-    <label for="nome">Seu nome<input type="text" id="nome" autocomplete="name" placeholder="Como você quer ser chamado" required></label>
-    <label for="fone">Seu WhatsApp<input type="tel" id="fone" inputmode="tel" autocomplete="tel" placeholder="(32) 99999-9999" required></label>
-    <label class="chk" for="ok"><input type="checkbox" id="ok" required><span>Autorizo o Gustavo Trotta a guardar meu nome e meu WhatsApp e a me procurar para falar de dinheiro. Posso pedir para apagar quando quiser.</span></label>
-    <button type="submit" class="btn" id="enviar">Abrir a calculadora</button>
-    <p class="erro" id="erro" hidden></p>
-  </form>
-</section>
 
-<main id="app" hidden>
-  <p class="ola" id="ola"></p>
+<main id="app">
   <nav class="abas" aria-label="As contas">
     <button type="button" data-aba="placar" class="on">Placar</button>
     <button type="button" data-aba="frangos">Frangos</button>
@@ -220,14 +207,8 @@ footer b{color:var(--on2)}
 
 </div>
 <script>
-/* ---------- onde os cadastros vão parar ----------
-   Cole aqui o endereço do Apps Script publicado (termina em /exec).
-   Veja o LEIA-ME da pasta Calculadora. Vazio: a calculadora abre sem gravar nada. */
-var ENDPOINT = 'https://script.google.com/macros/s/AKfycby0ZBYsnO-4hvHZGK_H1n003qjOdk-CiBt8-tKww35Esy21eucgACDXaieIRs6pBp-H/exec';
-var ORIGEM = 'cataguases-2026-11';
-
 /* ---------- as contas ---------- */
-var JUROS_ANO = { rotativo: 4.00, parcelado: 2.00, cheque: 1.50, consignado: 0.54 }; /* Banco Central, 2026; cheque especial: teto legal de 8% ao mês */
+var JUROS_ANO = { rotativo: 4.517, parcelado: 1.93, cheque: 1.50, consignado: 0.555 }; /* Banco Central, setembro de 2026; cheque especial: teto legal de 8% ao mês */
 var NOMES = { rotativo: 'no rotativo do cartão', parcelado: 'no parcelado do cartão', cheque: 'no cheque especial', consignado: 'no consignado' };
 function mensal(aa) { return Math.pow(1 + aa, 1 / 12) - 1; }
 function golContra(valor, tipo, meses) {
@@ -284,7 +265,7 @@ function calcGol() {
   $('g-msg').innerHTML = valor > 0
     ? brl(valor) + ' ' + NOMES[tipo] + ', ' + meses + (meses === 1 ? ' mês' : ' meses') + ' sem pagar: ' + (r.teto ? '<b>dobrou, e só parou aí porque a lei não deixa passar do dobro.</b>' : '<b>' + brl(r.valor - valor) + ' só de juros</b>, dinheiro que não leva nada para casa.')
     : 'Coloque o valor da dívida.';
-  $('g-nota').textContent = 'Juros médios do Banco Central em 2026: rotativo acima de 400% ao ano, parcelado cerca de 200%, cheque especial até cerca de 150% (teto legal de 8% ao mês), consignado cerca de 54%. Conta ilustrativa.';
+  $('g-nota').textContent = 'Juros médios do Banco Central em setembro de 2026: rotativo acima de 400% ao ano, parcelado cerca de 190%, consignado cerca de 55%; cheque especial no teto legal de 8% ao mês, cerca de 150% ao ano. Conta ilustrativa.';
 }
 /* jogo longo */
 function calcLongo() {
@@ -312,53 +293,10 @@ document.querySelectorAll('.abas button').forEach(function (b) {
 });
 function abaDoEndereco() { var h = (location.hash || '').replace('#', ''); return ['frangos', 'gol', 'longo', 'treinos'].indexOf(h) >= 0 ? h : 'placar'; }
 
-/* ---------- o cadastro ---------- */
-function soDigitos(s) { return String(s).replace(/\D/g, ''); }
-function formataFone(d) {
-  d = soDigitos(d).slice(0, 11);
-  if (d.length <= 2) return d;
-  if (d.length <= 6) return '(' + d.slice(0, 2) + ') ' + d.slice(2);
-  if (d.length <= 10) return '(' + d.slice(0, 2) + ') ' + d.slice(2, 6) + '-' + d.slice(6);
-  return '(' + d.slice(0, 2) + ') ' + d.slice(2, 7) + '-' + d.slice(7);
-}
-$('fone').addEventListener('input', function () { this.value = formataFone(this.value); });
-
-function abrir(nome) {
-  $('gate').hidden = true; $('app').hidden = false;
-  $('ola').textContent = nome ? 'Bom jogo, ' + nome.split(' ')[0] + '. As contas e a semana de treinos estão aqui.' : '';
-  calcPlacar(); calcFrangos(); calcGol(); calcLongo();
-  mostrarAba(abaDoEndereco(), false);
-}
-window.addEventListener('hashchange', function () { if (!$('app').hidden) mostrarAba(abaDoEndereco(), true); });
-function enviar(dados) {
-  if (!ENDPOINT) return Promise.resolve(true);
-  return fetch(ENDPOINT, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(dados) })
-    .then(function () { return true; });
-}
-$('form').addEventListener('submit', function (e) {
-  e.preventDefault();
-  var nome = $('nome').value.trim(), fone = soDigitos($('fone').value), ok = $('ok').checked, erro = $('erro');
-  erro.hidden = true;
-  if (nome.length < 2) { erro.textContent = 'Escreva o seu nome.'; erro.hidden = false; $('nome').focus(); return; }
-  if (fone.length < 10 || fone.length > 11) { erro.textContent = 'Confira o WhatsApp: DDD e número, com 10 ou 11 dígitos.'; erro.hidden = false; $('fone').focus(); return; }
-  if (!ok) { erro.textContent = 'Marque a autorização para continuar.'; erro.hidden = false; $('ok').focus(); return; }
-  var botao = $('enviar'); botao.disabled = true; botao.textContent = 'Abrindo…';
-  var dados = { nome: nome, fone: fone, consentiu: true, origem: ORIGEM, quando: new Date().toISOString(), tela: (screen && screen.width) + 'x' + (screen && screen.height) };
-  enviar(dados).then(function () {
-    try { localStorage.setItem('vj.cadastro', JSON.stringify({ nome: nome, quando: dados.quando })); } catch (x) {}
-    abrir(nome);
-  }).catch(function () {
-    botao.disabled = false; botao.textContent = 'Abrir a calculadora';
-    erro.textContent = 'Sem internet agora. Tente de novo em um minuto.'; erro.hidden = false;
-  });
-});
-
-/* quem já se cadastrou neste celular entra direto */
-(function () {
-  var c = null;
-  try { c = JSON.parse(localStorage.getItem('vj.cadastro') || 'null'); } catch (x) {}
-  if (c && c.nome) abrir(c.nome);
-})();
+/* ---------- abre direto, sem cadastro ---------- */
+calcPlacar(); calcFrangos(); calcGol(); calcLongo();
+mostrarAba(abaDoEndereco(), false);
+window.addEventListener('hashchange', function () { mostrarAba(abaDoEndereco(), true); });
 </script>
 </body>
 </html>
