@@ -71,6 +71,9 @@ input:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid
 .treino p{font-size:15px;line-height:1.45;color:var(--on2);margin:0}
 footer{margin-top:28px;font-size:12px;line-height:1.5;color:var(--on3)}
 footer b{color:var(--on2)}
+.assina{font-size:14px;color:var(--on3);margin-top:8px}
+.assina b{color:var(--on2)}
+.assina a,footer a{color:var(--lime);font-weight:700;text-decoration:none}
 /* o seu caso: as contas da palestra com os números da pessoa */
 h3.passo{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:400;font-size:26px;letter-spacing:.03em;color:#fff;margin:26px 0 10px}
 h3.passo span{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--lime);color:var(--night);font-size:22px;padding-top:2px;flex:none}
@@ -113,6 +116,7 @@ details.semana[open] summary::after{content:"−"}
   <div class="placar"><span class="t">Fim do mês</span><span class="n">1</span><span class="x">×</span><span class="n">2</span><span class="t">Você</span></div>
   <h1>Vira o jogo</h1>
   <p class="sub">O seu caso, com os seus números.</p>
+  <p class="assina">por <b>Gustavo Trotta, CFP®</b> · <a href="https://gustavotrotta.com.br">gustavotrotta.com.br</a></p>
 </header>
 
 <main id="app">
@@ -195,7 +199,7 @@ details.semana[open] summary::after{content:"−"}
 </main>
 
 <footer>
-  <b>Gustavo Trotta, CFP®</b> · Planejador financeiro certificado. Material educativo, com exemplos ilustrativos. Não constitui recomendação de investimento. Gustavo Trotta de Mendonça é assessor de investimentos e sócio da Valor Investimentos – Assessoria de Investimentos Ltda. (CNPJ 06.031.097/0001-86), contratada da XP Investimentos CCTVM S.A. Reclamações: Ouvidoria XP 0800 722 3730, de segunda a sexta, das 9h às 18h.
+  <b>Gustavo Trotta, CFP®</b> · Planejador financeiro certificado · <a href="https://gustavotrotta.com.br">gustavotrotta.com.br</a>. Material educativo, com exemplos ilustrativos. Não constitui recomendação de investimento. Gustavo Trotta de Mendonça é assessor de investimentos e sócio da Valor Investimentos – Assessoria de Investimentos Ltda. (CNPJ 06.031.097/0001-86), contratada da XP Investimentos CCTVM S.A. Reclamações: Ouvidoria XP 0800 722 3730, de segunda a sexta, das 9h às 18h.
 </footer>
 
 </div>
@@ -377,8 +381,13 @@ function montaImagem(ctx, itens, L, pinta) {
     y += cartao(ctx, function (x, yy, ww, p) { return bloco(ctx, it, x, yy, ww, p); }, M, y, L, pinta) + 20;
   });
   y += cartao(ctx, function (x, yy, ww, p) { return semana(ctx, x, yy, ww, p); }, M, y, L, pinta) + 34;
-  y += escreve(ctx, 'Feito no seu celular: ninguém viu estes números.', M, y, w, '600 26px ' + INTER, COR.texto, 36, pinta) + 10;
-  y += escreve(ctx, 'Material educativo, com valores aproximados. Não é recomendação de investimento. Palestra Vira o jogo · Gustavo Trotta, CFP®.', M, y, w, '22px ' + INTER, COR.apagado, 32, pinta);
+  y += escreve(ctx, 'Feito no seu celular: ninguém viu estes números.', M, y, w, '600 26px ' + INTER, COR.texto, 36, pinta) + 30;
+  /* a assinatura: o nome e o site do Gustavo */
+  if (pinta) { ctx.fillStyle = COR.borda; ctx.fillRect(M, y, w, 2); }
+  y += 28;
+  y += escreve(ctx, 'Gustavo Trotta, CFP® · Planejador financeiro certificado', M, y, w, '700 28px ' + INTER, COR.branco, 38, pinta) + 4;
+  y += escreve(ctx, 'gustavotrotta.com.br', M, y, w, '700 44px ' + INTER, COR.lima, 54, pinta) + 18;
+  y += escreve(ctx, 'Material educativo, com valores aproximados. Não é recomendação de investimento. Palestra Vira o jogo.', M, y, w, '22px ' + INTER, COR.apagado, 32, pinta);
   return y + 72;
 }
 function desenhaPlano(itens) {
