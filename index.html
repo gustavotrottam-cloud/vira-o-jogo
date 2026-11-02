@@ -3,15 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Vira o jogo · Calculadora do placar</title>
-<meta name="description" content="As contas da palestra Vira o jogo, no celular: o placar do mês, os frangos, o gol contra da dívida, o jogo longo e o seu caso.">
+<title>Vira o jogo · O seu caso</title>
+<meta name="description" content="O seu caso, com os seus números: o placar do mês, as dívidas, o consignado, os frangos, o goleiro, o 13º e o jogo longo. Da palestra Vira o jogo.">
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap">
 <style>
-/* Calculadora do placar · Vira o jogo · Gustavo Trotta
+/* O seu caso · Vira o jogo · Gustavo Trotta
    Página de celular, anônima: abre direto, sem cadastro, e não envia nada a ninguém.
+   Desde 02/11/2026 é uma página só: o caso da pessoa, com a semana de treinos no fim
+   e um botão que transforma o plano numa imagem, feita no próprio celular.
    Um tema só, de propósito: o campo da palestra. */
 :root{
   --grass:#0B4A2C; --grass2:#073420; --lime:#C9F31D; --lime2:#EAFF7A;
@@ -23,6 +25,7 @@
   color-scheme:dark;
 }
 *{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
 html,body{min-height:100%}
 body{background:var(--grass2);color:var(--on);font-family:var(--sans);font-size:17px;line-height:1.5;-webkit-font-smoothing:antialiased;padding-block:0 40px}
 .wrap{max-width:560px;margin:0 auto;padding-inline:18px}
@@ -36,31 +39,10 @@ h1{font-family:var(--display);font-weight:400;font-size:64px;line-height:.9;lett
 .card{background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:22px 20px;margin-top:18px}
 h2{font-family:var(--display);font-weight:400;font-size:34px;line-height:.95;letter-spacing:.02em;color:var(--lime)}
 .card p{color:var(--on2);margin-top:8px}
-form{display:grid;gap:14px;margin-top:16px}
 label{display:grid;gap:6px;font-weight:600;font-size:15px;color:var(--on)}
-input[type=text],input[type=tel],input[type=number],select{width:100%;font:inherit;font-size:19px;padding:13px 14px;border-radius:12px;border:2px solid rgba(255,255,255,.14);background:var(--paper);color:var(--ink)}
-input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid var(--lime);outline-offset:2px}
-.chk{display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:start;font-weight:400;font-size:14px;color:var(--on2);line-height:1.45}
-.chk input{width:24px;height:24px;margin-top:2px;accent-color:var(--lime)}
+input[type=number]{width:100%;font:inherit;font-size:19px;padding:13px 14px;border-radius:12px;border:2px solid rgba(255,255,255,.14);background:var(--paper);color:var(--ink)}
+input:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--lime);outline-offset:2px}
 .btn{display:block;width:100%;font-family:var(--display);font-size:28px;letter-spacing:.06em;padding:16px 20px 12px;border:0;border-radius:14px;background:var(--lime);color:var(--night);cursor:pointer}
-.btn:disabled{opacity:.6;cursor:wait}
-.erro{color:var(--neg);font-weight:600;font-size:15px}
-.abas{display:flex;flex-wrap:wrap;gap:6px;margin-top:20px}
-.abas button{flex:1 1 calc(33.333% - 6px);min-width:96px;font-family:var(--display);font-size:18px;letter-spacing:.03em;padding:11px 4px 8px;border-radius:12px;border:2px solid rgba(201,243,29,.35);background:transparent;color:var(--on2);cursor:pointer;line-height:1}
-.treinos{display:grid;gap:10px;margin-top:14px}
-.treino{display:grid;grid-template-columns:54px 1fr;gap:12px;align-items:start;background:rgba(255,255,255,.06);border-radius:12px;padding:12px 14px}
-.treino .d{font-family:var(--display);font-size:40px;line-height:.9;color:var(--lime)}
-.treino b{display:block;font-size:17px;color:#fff;margin-bottom:4px}
-.treino p{font-size:15px;line-height:1.45;color:var(--on2);margin:0}
-.frangos{display:grid;gap:8px;margin-top:14px}
-.frango{display:grid;grid-template-columns:28px 1fr 118px;gap:10px;align-items:center;background:rgba(255,255,255,.06);border-radius:12px;padding:10px 12px;font-weight:400;font-size:15px;line-height:1.3;color:var(--on)}
-.frango.on{background:rgba(201,243,29,.12)}
-.frango input[type=checkbox]{width:24px;height:24px;accent-color:var(--lime)}
-.frango .prefixo input{padding:9px 10px 9px 38px;font-size:16px}
-.frango .prefixo::before{left:11px;font-size:15px}
-.abas button.on{background:var(--lime);color:var(--night);border-color:var(--lime)}
-.aba{display:none}
-.aba.on{display:block}
 .linha{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media (max-width:420px){.linha{grid-template-columns:1fr}}
 .campo{display:grid;gap:6px}
@@ -69,25 +51,27 @@ input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid 
 .prefixo{position:relative}
 .prefixo input{padding-left:46px}
 .prefixo::before{content:"R$";position:absolute;left:14px;top:50%;transform:translateY(-50%);font-weight:700;color:var(--ink3);font-size:17px}
-input[type=range]{width:100%;accent-color:var(--lime);height:34px}
-.valor{display:flex;justify-content:space-between;align-items:baseline;font-size:15px;color:var(--on2)}
-.valor b{font-family:var(--display);font-size:30px;color:#fff;letter-spacing:.02em}
 .resultado{margin-top:18px;padding:18px 18px 16px;border-radius:14px;background:var(--night);border:2px solid rgba(201,243,29,.35);text-align:center}
 .resultado .rot{font-size:13px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:var(--gold)}
 .resultado .num{font-family:var(--display);font-size:64px;line-height:.9;color:var(--lime);margin-top:8px;font-variant-numeric:tabular-nums}
 .resultado .num.ruim{color:var(--neg)}
 .resultado .msg{color:var(--on2);margin-top:10px;font-size:16px}
 .resultado .msg b{color:#fff}
-.gol{display:inline-block;font-family:var(--display);font-size:24px;letter-spacing:.14em;background:var(--lime);color:var(--night);padding:8px 14px 5px;border-radius:8px;transform:rotate(-3deg);margin-top:12px}
-.duas{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
-.duas div{background:rgba(255,255,255,.06);border-radius:10px;padding:10px}
-.duas span{display:block;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--on3);font-weight:700}
-.duas b{display:block;font-family:var(--display);font-size:26px;color:#fff;margin-top:4px;font-variant-numeric:tabular-nums}
 .nota{font-size:13px;color:var(--on3);margin-top:12px;line-height:1.45}
+.frangos{display:grid;gap:8px}
+.frango{display:grid;grid-template-columns:28px 1fr 118px;gap:10px;align-items:center;background:rgba(255,255,255,.06);border-radius:12px;padding:10px 12px;font-weight:400;font-size:15px;line-height:1.3;color:var(--on)}
+.frango.on{background:rgba(201,243,29,.12)}
+.frango input[type=checkbox]{width:24px;height:24px;accent-color:var(--lime)}
+.frango .prefixo input{padding:9px 10px 9px 38px;font-size:16px}
+.frango .prefixo::before{left:11px;font-size:15px}
+.treinos{display:grid;gap:10px;margin-top:14px}
+.treino{display:grid;grid-template-columns:54px 1fr;gap:12px;align-items:start;background:rgba(255,255,255,.06);border-radius:12px;padding:12px 14px}
+.treino .d{font-family:var(--display);font-size:40px;line-height:.9;color:var(--lime)}
+.treino b{display:block;font-size:17px;color:#fff;margin-bottom:4px}
+.treino p{font-size:15px;line-height:1.45;color:var(--on2);margin:0}
 footer{margin-top:28px;font-size:12px;line-height:1.5;color:var(--on3)}
 footer b{color:var(--on2)}
-@media (prefers-reduced-motion:no-preference){.resultado .num{transition:transform .25s}.resultado .num.pulo{transform:scale(1.06)}}
-/* meu caso: as contas da palestra com os números da pessoa */
+/* o seu caso: as contas da palestra com os números da pessoa */
 h3.passo{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:400;font-size:26px;letter-spacing:.03em;color:#fff;margin:26px 0 10px}
 h3.passo span{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--lime);color:var(--night);font-size:22px;padding-top:2px;flex:none}
 .card p.dica{font-size:15px;margin:0 0 10px}
@@ -111,7 +95,15 @@ h3.passo span{display:inline-grid;place-items:center;width:34px;height:34px;bord
 .selo.bom{background:var(--lime);color:var(--night)}
 .selo.amarelo{background:#FFD60A;color:var(--night)}
 .selo.vermelho{background:#E63946;color:#fff}
+.btn.salvar{margin-top:16px}
 .btn.sec{background:transparent;border:2px solid rgba(255,255,255,.25);color:var(--on2);font-size:22px;margin-top:14px}
+#c-img{display:block;width:100%;border-radius:14px;margin-top:12px;border:1px solid rgba(255,255,255,.15)}
+/* a semana de treinos, no fim, num bloco que abre e fecha */
+details.semana{margin-top:22px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:4px 16px 14px}
+details.semana summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;font-family:var(--display);font-size:28px;letter-spacing:.03em;color:#fff;padding:12px 0 6px}
+details.semana summary::-webkit-details-marker{display:none}
+details.semana summary::after{content:"+";color:var(--lime);font-size:34px;line-height:1}
+details.semana[open] summary::after{content:"−"}
 </style>
 </head>
 <body>
@@ -120,118 +112,16 @@ h3.passo span{display:inline-grid;place-items:center;width:34px;height:34px;bord
 <header class="topo">
   <div class="placar"><span class="t">Fim do mês</span><span class="n">1</span><span class="x">×</span><span class="n">2</span><span class="t">Você</span></div>
   <h1>Vira o jogo</h1>
-  <p class="sub">A calculadora do placar, no seu celular.</p>
+  <p class="sub">O seu caso, com os seus números.</p>
 </header>
 
-
 <main id="app">
-  <nav class="abas" aria-label="As contas">
-    <button type="button" data-aba="placar" class="on">Placar</button>
-    <button type="button" data-aba="frangos">Frangos</button>
-    <button type="button" data-aba="gol">Gol contra</button>
-    <button type="button" data-aba="longo">Jogo longo</button>
-    <button type="button" data-aba="treinos">Treinos</button>
-    <button type="button" data-aba="caso">Meu caso</button>
-  </nav>
-
-  <section class="card aba on" id="aba-placar">
-    <h2>O placar do mês</h2>
-    <p>O que entra, menos as contas da casa, menos as parcelas. Esse é o seu número.</p>
-    <div class="campo" style="margin-top:14px"><span>O que entra no mês</span><div class="prefixo"><input type="number" id="p-entra" inputmode="decimal" min="0" step="10" value="1621"></div></div>
-    <div class="linha" style="margin-top:12px">
-      <div class="campo"><span>Contas da casa<small>aluguel, luz, água, mercado, ônibus</small></span><div class="prefixo"><input type="number" id="p-casa" inputmode="decimal" min="0" step="10" value="1250"></div></div>
-      <div class="campo"><span>Parcelas<small>cartão, loja, empréstimo</small></span><div class="prefixo"><input type="number" id="p-parc" inputmode="decimal" min="0" step="10" value="500"></div></div>
-    </div>
-    <div class="resultado" aria-live="polite">
-      <div class="rot">O seu número</div>
-      <div class="num" id="p-num">−R$ 129</div>
-      <p class="msg" id="p-msg">Tomou gol de R$ 129. <b>O plano começa pelas dívidas.</b></p>
-    </div>
-    <p class="nota">Não precisa ser exato. Valor aproximado já serve.</p>
-  </section>
-
-  <section class="card aba" id="aba-frangos">
-    <h2>Os frangos do mês</h2>
-    <p>O que sai da conta todo mês sem você usar. Marque os seus e acerte o valor.</p>
-    <div class="frangos">
-      <label class="frango"><input type="checkbox" class="f-on"><span>Streaming que ninguém assiste</span><span class="prefixo"><input type="number" class="f-v" inputmode="decimal" min="0" step="5" value="30"></span></label>
-      <label class="frango"><input type="checkbox" class="f-on"><span>Pacote de tarifas do banco</span><span class="prefixo"><input type="number" class="f-v" inputmode="decimal" min="0" step="5" value="30"></span></label>
-      <label class="frango"><input type="checkbox" class="f-on"><span>Seguro ou "proteção" que você não pediu</span><span class="prefixo"><input type="number" class="f-v" inputmode="decimal" min="0" step="5" value="25"></span></label>
-      <label class="frango"><input type="checkbox" class="f-on"><span>Pacote do celular maior que o uso</span><span class="prefixo"><input type="number" class="f-v" inputmode="decimal" min="0" step="5" value="20"></span></label>
-      <label class="frango"><input type="checkbox" class="f-on"><span>Taxa de entrega do delivery</span><span class="prefixo"><input type="number" class="f-v" inputmode="decimal" min="0" step="5" value="40"></span></label>
-      <label class="frango"><input type="checkbox" class="f-on"><span>Assinatura de app que renovou sozinha</span><span class="prefixo"><input type="number" class="f-v" inputmode="decimal" min="0" step="5" value="15"></span></label>
-    </div>
-    <div class="resultado" aria-live="polite">
-      <div class="rot">Os frangos levam, por mês</div>
-      <div class="num" id="f-num">R$ 0</div>
-      <div class="duas"><div><span>Por ano</span><b id="f-ano">R$ 0</b></div><div><span>Paga o automático por</span><b id="f-auto">0</b></div></div>
-      <p class="msg" id="f-msg">Marque os frangos que você tem.</p>
-    </div>
-    <p class="nota">Valores de exemplo. Pela regra do Banco Central, todo banco tem que oferecer uma conta com os serviços básicos sem tarifa: pergunte no seu.</p>
-    <p class="nota">A bet não é frango: é um buraco. Se a aposta virou segredo, tem ajuda de graça no SUS: o aplicativo Meu SUS Digital, o posto de saúde (UBS) e o CAPS.</p>
-  </section>
-  <section class="card aba" id="aba-gol">
-    <h2>Gol contra</h2>
-    <p>Quanto vira uma dívida que fica sem pagar.</p>
-    <div class="campo" style="margin-top:14px"><span>Valor da dívida hoje</span><div class="prefixo"><input type="number" id="g-valor" inputmode="decimal" min="0" step="50" value="1000"></div></div>
-    <div class="campo" style="margin-top:12px"><span>Que tipo de dívida</span>
-      <select id="g-tipo">
-        <option value="rotativo">Rotativo do cartão (pagou só o mínimo da fatura)</option>
-        <option value="parcelado">Parcelado do cartão (parcelou a fatura, com juros)</option>
-        <option value="cheque">Cheque especial (ficou no vermelho)</option>
-        <option value="pessoal">Empréstimo pessoal (sem desconto na folha)</option>
-        <option value="consignado">Consignado (desconto na folha)</option>
-      </select></div>
-    <div class="campo" style="margin-top:12px"><span>Meses sem pagar</span>
-      <input type="range" id="g-meses" min="1" max="24" value="6">
-      <div class="valor"><span>meses</span><b id="g-meses-v">6</b></div></div>
-    <div class="resultado" aria-live="polite">
-      <div class="rot">A dívida vira</div>
-      <div class="num ruim" id="g-num">R$ 2.000</div>
-      <div class="duas"><div><span>A dívida de hoje</span><b id="g-divida">R$ 1.000</b></div><div><span>Só de juros</span><b id="g-juros" style="color:var(--neg)">R$ 1.000</b></div></div>
-      <p class="msg" id="g-msg"></p>
-    </div>
-    <p class="nota" id="g-nota"></p>
-  </section>
-
-  <section class="card aba" id="aba-longo">
-    <h2>O jogo longo</h2>
-    <p>Guardando um pouco por dia, e deixando render.</p>
-    <div class="campo" style="margin-top:14px"><span>Quanto por dia</span>
-      <input type="range" id="l-dia" min="1" max="20" value="2">
-      <div class="valor"><span>por dia</span><b id="l-dia-v">R$ 2</b></div></div>
-    <div class="campo" style="margin-top:12px"><span>Por quantos anos</span>
-      <input type="range" id="l-anos" min="1" max="30" value="30">
-      <div class="valor"><span>anos</span><b id="l-anos-v">30</b></div></div>
-    <div class="resultado" aria-live="polite">
-      <div class="rot">Você teria</div>
-      <div class="num" id="l-num">R$ 210 mil</div>
-      <div class="duas"><div><span>Você guardou</span><b id="l-guardou">R$ 21.600</b></div><div><span>O dinheiro rendeu</span><b id="l-rendeu">R$ 188 mil</b></div></div>
-      <span class="gol" id="l-gol">Gooool!</span>
-    </div>
-    <p class="nota">Exemplo com 1% ao mês, bruto, sem descontar imposto nem inflação. Não é promessa nem indicação de investimento.</p>
-  </section>
-
-  <section class="card aba" id="aba-treinos">
-    <h2>A semana de treinos</h2>
-    <p>Um treino por dia, de dois minutos, durante sete dias. Faça na ordem.</p>
-    <div class="treinos">
-      <div class="treino"><span class="d">1</span><div><b>Descubra o seu placar do mês</b><p>O que entra, menos as contas da casa (aluguel, luz, água, mercado, ônibus), menos as parcelas. Deu negativo? De cada dez pessoas, cinco estão assim. Agora você sabe o placar. A aba "Placar" faz a conta.</p></div></div>
-      <div class="treino"><span class="d">2</span><div><b>Some as parcelinhas e cace os frangos</b><p>Abra o app do cartão e o extrato do banco. Anote cada parcela do mês e some. Depois cace os frangos: assinatura que ninguém assiste, pacote do banco, seguro que você não pediu. Cancele um hoje. A aba "Frangos" faz a conta.</p></div></div>
-      <div class="treino"><span class="d">3</span><div><b>Liste as dívidas e circule a mais cara</b><p>Para cada dívida: o que é, quanto falta, a parcela e o juro por mês (está na fatura ou no contrato). Circule a de maior juro, quase sempre o rotativo do cartão. Ela é a primeira da fila; nas outras, o mínimo.</p></div></div>
-      <div class="treino"><span class="d">4</span><div><b>Ligue para fazer acordo e pergunte o preço total</b><p>Ligue para quem você deve e diga que quer regularizar. Pergunte o desconto para pagar à vista e, se parcelar, o preço total com tudo dentro, o tal do CET. Anote antes de aceitar.</p></div></div>
-      <div class="treino"><span class="d">5</span><div><b>Marque a conversa de dinheiro em casa</b><p>Vinte minutos com quem divide as contas. Três perguntas: quanto entrou? Quanto saiu? Qual é o próximo passo? Uma decisão só, com dono e data.</p></div></div>
-      <div class="treino"><span class="d">6</span><div><b>Programe o automático</b><p>No app do banco, uma transferência automática para o dia do salário: R$ 2 por dia, R$ 60 por mês, para uma conta separada do cartão, de onde dá para tirar na hora e sem risco de perder.</p></div></div>
-      <div class="treino"><span class="d">7</span><div><b>Dê nome ao gol e comemore</b><p>Escreva a meta, o valor e o mês. Cole na geladeira. Meta com nome e data é meta que acontece. A aba "Jogo longo" mostra aonde ela chega.</p></div></div>
-    </div>
-    <p class="nota">Esta página fica aberta para você voltar quando quiser.</p>
-  </section>
-
-  <section class="card aba" id="aba-caso">
-    <h2>Meu caso</h2>
-    <p>Cinco passos, uns cinco minutos. No fim, o seu jogo. <b>Ninguém vê o que você escreve:</b> nada sai do seu celular.</p>
+  <section class="card" id="caso">
+    <h2>O seu caso</h2>
+    <p>Cinco passos, uns cinco minutos. No fim, o seu jogo e o seu plano, numa imagem para guardar. <b>Ninguém vê o que você escreve:</b> nada sai do seu celular.</p>
 
     <h3 class="passo"><span>1</span> O placar do mês</h3>
+    <p class="dica">Valor aproximado já serve. Ninguém vai conferir.</p>
     <div class="campo"><span>O que entra no mês<small>o salário que cai na conta</small></span><div class="prefixo"><input type="number" id="c-entra" inputmode="decimal" min="0" step="10" placeholder="0"></div></div>
     <div class="linha" style="margin-top:12px">
       <div class="campo"><span>Contas da casa<small>aluguel, luz, água, mercado, ônibus</small></span><div class="prefixo"><input type="number" id="c-casa" inputmode="decimal" min="0" step="10" placeholder="0"></div></div>
@@ -259,7 +149,16 @@ h3.passo span{display:inline-grid;place-items:center;width:34px;height:34px;bord
     </div>
 
     <h3 class="passo"><span>4</span> Os frangos</h3>
-    <div class="campo"><span>O que sai todo mês sem você usar<small>streaming, pacote do banco, seguro, delivery. A aba Frangos ajuda a somar.</small></span><div class="prefixo"><input type="number" id="c-frangos" inputmode="decimal" min="0" step="5" placeholder="0"></div></div>
+    <p class="dica">O que sai da conta todo mês sem você usar. Marque os seus e acerte o valor.</p>
+    <div class="frangos">
+      <label class="frango"><input type="checkbox" class="f-on"><span>Streaming que ninguém assiste</span><span class="prefixo"><input type="number" class="f-v" inputmode="decimal" min="0" step="5" value="30"></span></label>
+      <label class="frango"><input type="checkbox" class="f-on"><span>Pacote de tarifas do banco</span><span class="prefixo"><input type="number" class="f-v" inputmode="decimal" min="0" step="5" value="30"></span></label>
+      <label class="frango"><input type="checkbox" class="f-on"><span>Seguro ou "proteção" que você não pediu</span><span class="prefixo"><input type="number" class="f-v" inputmode="decimal" min="0" step="5" value="25"></span></label>
+      <label class="frango"><input type="checkbox" class="f-on"><span>Pacote do celular maior que o uso</span><span class="prefixo"><input type="number" class="f-v" inputmode="decimal" min="0" step="5" value="20"></span></label>
+      <label class="frango"><input type="checkbox" class="f-on"><span>Taxa de entrega do delivery</span><span class="prefixo"><input type="number" class="f-v" inputmode="decimal" min="0" step="5" value="40"></span></label>
+      <label class="frango"><input type="checkbox" class="f-on"><span>Assinatura de app que renovou sozinha</span><span class="prefixo"><input type="number" class="f-v" inputmode="decimal" min="0" step="5" value="15"></span></label>
+    </div>
+    <p class="nota">Pela regra do Banco Central, todo banco tem que oferecer uma conta com os serviços básicos sem tarifa: pergunte no seu.</p>
 
     <h3 class="passo"><span>5</span> O goleiro e o 13º</h3>
     <p class="dica">Você tem dinheiro guardado para um imprevisto?</p>
@@ -271,7 +170,26 @@ h3.passo span{display:inline-grid;place-items:center;width:34px;height:34px;bord
     <div class="campo" style="margin-top:12px"><span>Quanto vai cair de 13º<small>o dinheiro das férias paga o janeiro: não conte com ele aqui</small></span><div class="prefixo"><input type="number" id="c-13" inputmode="decimal" min="0" step="50" placeholder="0"></div></div>
 
     <div class="resultado jogo" id="c-res" aria-live="polite"></div>
-    <p class="nota">Valores aproximados, para você enxergar o seu jogo. Material educativo, não é recomendação. Tire um print: esta tela não fica salva.</p>
+    <button type="button" class="btn salvar" id="c-salvar" hidden>Salvar o meu plano</button>
+    <p class="nota" id="c-img-dica" hidden>Pronto: o seu plano virou esta imagem. Se ela não foi salva sozinha, toque e segure nela e escolha "Salvar imagem".</p>
+    <img id="c-img" alt="O meu plano, em imagem" hidden>
+
+    <details class="semana" id="semana">
+      <summary>A semana de treinos</summary>
+      <p class="dica">Um treino por dia, de dois minutos, durante sete dias. Faça na ordem. Ela também vai na imagem do seu plano.</p>
+      <div class="treinos">
+        <div class="treino"><span class="d">1</span><div><b>Descubra o seu placar do mês</b><p>O que entra, menos as contas da casa (aluguel, luz, água, mercado, ônibus), menos as parcelas. Deu negativo? De cada dez pessoas, cinco estão assim. Agora você sabe o placar. O passo 1 aqui em cima faz a conta.</p></div></div>
+        <div class="treino"><span class="d">2</span><div><b>Some as parcelinhas e cace os frangos</b><p>Abra o app do cartão e o extrato do banco. Anote cada parcela do mês e some. Depois cace os frangos: assinatura que ninguém assiste, pacote do banco, seguro que você não pediu. Cancele um hoje. O passo 4 aqui em cima faz a conta.</p></div></div>
+        <div class="treino"><span class="d">3</span><div><b>Liste as dívidas e circule a mais cara</b><p>Para cada dívida: o que é, quanto falta, a parcela e o juro por mês (está na fatura ou no contrato). Circule a de maior juro, quase sempre o rotativo do cartão. Ela é a primeira da fila; nas outras, o mínimo.</p></div></div>
+        <div class="treino"><span class="d">4</span><div><b>Ligue para fazer acordo e pergunte o preço total</b><p>Ligue para quem você deve e diga que quer regularizar. Pergunte o desconto para pagar à vista e, se parcelar, o preço total com tudo dentro, o tal do CET. Anote antes de aceitar.</p></div></div>
+        <div class="treino"><span class="d">5</span><div><b>Marque a conversa de dinheiro em casa</b><p>Vinte minutos com quem divide as contas. Três perguntas: quanto entrou? Quanto saiu? Qual é o próximo passo? Uma decisão só, com dono e data.</p></div></div>
+        <div class="treino"><span class="d">6</span><div><b>Programe o automático</b><p>No app do banco, uma transferência automática para o dia do salário: R$ 2 por dia, R$ 60 por mês, para uma conta separada do cartão, de onde dá para tirar na hora e sem risco de perder.</p></div></div>
+        <div class="treino"><span class="d">7</span><div><b>Dê nome ao gol e comemore</b><p>Escreva a meta, o valor e o mês. Cole na geladeira. Meta com nome e data é meta que acontece. O seu jogo, aqui em cima, mostra aonde ela chega.</p></div></div>
+      </div>
+    </details>
+
+    <p class="nota">Valores aproximados, para você enxergar o seu jogo. Material educativo, não é recomendação. Esta tela não fica salva: guarde a imagem.</p>
+    <p class="nota">A bet não é frango: é um buraco. Se a aposta virou segredo, tem ajuda de graça no SUS: o aplicativo Meu SUS Digital, o posto de saúde (UBS) e o CAPS.</p>
     <button type="button" class="btn sec" id="c-limpar">Apagar e começar de novo</button>
   </section>
 </main>
@@ -282,9 +200,8 @@ h3.passo span{display:inline-grid;place-items:center;width:34px;height:34px;bord
 
 </div>
 <script>
-/* ---------- as contas ---------- */
+/* ---------- as contas da palestra ---------- */
 var JUROS_ANO = { rotativo: 4.517, parcelado: 1.93, cheque: 1.50, pessoal: 1.109, consignado: 0.555 }; /* Banco Central, setembro de 2026; cheque especial: teto legal de 8% ao mês */
-var NOMES = { rotativo: 'no rotativo do cartão', parcelado: 'no parcelado do cartão', cheque: 'no cheque especial', pessoal: 'no empréstimo pessoal', consignado: 'no consignado' };
 function mensal(aa) { return Math.pow(1 + aa, 1 / 12) - 1; }
 function golContra(valor, tipo, meses) {
   var v = valor * Math.pow(1 + mensal(JUROS_ANO[tipo]), meses);
@@ -300,114 +217,72 @@ function brl(v) {
   var neg = v < 0; v = Math.abs(v);
   var s = v >= 1e6 ? (v / 1e6).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + (v < 2e6 ? ' milhão' : ' milhões')
     : v >= 100000 ? (Math.round(v / 1000)).toLocaleString('pt-BR') + ' mil' : Math.round(v).toLocaleString('pt-BR');
-  return (neg ? '−' : '') + 'R$ ' + s;
+  return (neg ? '−' : '') + 'R$ ' + s;  /* espaço que não quebra: o R$ nunca fica sozinho no fim da linha */
 }
 function $(id) { return document.getElementById(id); }
 function num(id) { var v = parseFloat(String($(id).value).replace(',', '.')); return isNaN(v) ? 0 : v; }
-function pulo(el) { el.classList.remove('pulo'); void el.offsetWidth; el.classList.add('pulo'); }
 
-/* placar do mês */
-function calcPlacar() {
-  var n = num('p-entra') - num('p-casa') - num('p-parc');
-  var el = $('p-num'); el.textContent = brl(n); el.classList.toggle('ruim', n < 0); pulo(el);
-  $('p-msg').innerHTML = n < 0
-    ? 'Tomou gol de ' + brl(-n) + '. <b>O plano começa pelas dívidas: liste, ordene e ataque a mais cara.</b>'
-    : n === 0 ? 'Empate. <b>Nada sobra, nada falta. O automático começa pequeno: R$ 2 por dia.</b>'
-    : 'Sobrou ' + brl(n) + '. <b>Você tem com o que abastecer o futuro. Comece pelo goleiro: a reserva.</b>';
-}
-/* os frangos do mês */
-function calcFrangos() {
+/* ---------- o seu caso: as contas da palestra com os números da pessoa; nada sai do celular ---------- */
+var DIVIDAS_CASO = ['rotativo', 'parcelado', 'cheque', 'pessoal', 'consignado', 'outra'];
+var NOME_DIVIDA = { rotativo: 'rotativo do cartão', parcelado: 'parcelado do cartão', cheque: 'cheque especial', pessoal: 'empréstimo pessoal', consignado: 'consignado', outra: 'outra dívida' };
+var TREINOS = ['Descubra o seu placar do mês', 'Some as parcelinhas e cace os frangos', 'Liste as dívidas e circule a mais cara', 'Ligue para fazer acordo e pergunte o preço total', 'Marque a conversa de dinheiro em casa', 'Programe o automático', 'Dê nome ao gol e comemore'];
+var planoAtual = [];
+function maiuscula(t) { return t.charAt(0).toUpperCase() + t.slice(1); }
+function marcado(nome) { var el = document.querySelector('input[name="' + nome + '"]:checked'); return el ? el.value : ''; }
+function somaFrangos() {
   var total = 0;
-  document.querySelectorAll('#aba-frangos .frango').forEach(function (l) {
+  document.querySelectorAll('.frango').forEach(function (l) {
     var on = l.querySelector('.f-on').checked, v = parseFloat(String(l.querySelector('.f-v').value).replace(',', '.'));
     if (on && !isNaN(v)) total += v;
     l.classList.toggle('on', on);
   });
-  var ano = total * 12, entra = num('p-entra'), meses = Math.floor(ano / 60);
-  var el = $('f-num'); el.textContent = brl(total); pulo(el);
-  $('f-ano').textContent = brl(ano);
-  $('f-auto').textContent = total > 0 ? meses + (meses === 1 ? ' mês' : ' meses') : '0';
-  $('f-msg').innerHTML = total <= 0 ? 'Marque os frangos que você tem.'
-    : (entra > 0 && ano >= entra ? '<b>Em um ano, os frangos levam mais que um salário inteiro.</b> ' : '')
-      + (total >= 60 ? 'Um frango cortado paga o automático inteiro: <b>R$ 2 por dia.</b>' : 'Já é um pedaço do automático de <b>R$ 60 por mês.</b>');
+  return total;
 }
-/* gol contra */
-function calcGol() {
-  var valor = num('g-valor'), tipo = $('g-tipo').value, meses = parseInt($('g-meses').value, 10);
-  $('g-meses-v').textContent = meses;
-  var r = golContra(valor, tipo, meses);
-  var el = $('g-num'); el.textContent = brl(r.valor); pulo(el);
-  $('g-divida').textContent = brl(valor); $('g-juros').textContent = brl(r.valor - valor);
-  $('g-msg').innerHTML = valor > 0
-    ? brl(valor) + ' ' + NOMES[tipo] + ', ' + meses + (meses === 1 ? ' mês' : ' meses') + ' sem pagar: ' + (r.teto ? '<b>dobrou, e só parou aí porque a lei não deixa passar do dobro.</b>' : '<b>' + brl(r.valor - valor) + ' só de juros</b>, dinheiro que não leva nada para casa.')
-    : 'Coloque o valor da dívida.';
-  $('g-nota').textContent = 'Juros médios do Banco Central em setembro de 2026: rotativo acima de 400% ao ano, parcelado cerca de 190%, empréstimo pessoal cerca de 110%, consignado cerca de 55%; cheque especial no teto legal de 8% ao mês, cerca de 150% ao ano. Conta ilustrativa.';
-}
-/* jogo longo */
-function calcLongo() {
-  var dia = parseInt($('l-dia').value, 10), anos = parseInt($('l-anos').value, 10);
-  $('l-dia-v').textContent = brl(dia); $('l-anos-v').textContent = anos;
-  var r = jogoLongo(dia, anos, 0.01);
-  var el = $('l-num'); el.textContent = brl(r.total); pulo(el);
-  $('l-guardou').textContent = brl(r.guardou); $('l-rendeu').textContent = brl(r.rendeu);
-  $('l-gol').hidden = r.rendeu < r.guardou;  /* o gol é quando o rendimento passa o que foi guardado */
-}
-['p-entra', 'p-casa', 'p-parc'].forEach(function (id) { $(id).addEventListener('input', function () { calcPlacar(); calcFrangos(); }); });
-document.querySelectorAll('#aba-frangos input').forEach(function (el) { el.addEventListener('input', calcFrangos); el.addEventListener('change', calcFrangos); });
-['g-valor', 'g-tipo', 'g-meses'].forEach(function (id) { $(id).addEventListener('input', calcGol); });
-['l-dia', 'l-anos'].forEach(function (id) { $(id).addEventListener('input', calcLongo); });
-
-/* ---------- meu caso: as contas da palestra com os números da pessoa; nada sai do celular ---------- */
-var DIVIDAS_CASO = ['rotativo', 'parcelado', 'cheque', 'pessoal', 'consignado', 'outra'];
-var NOME_DIVIDA = { rotativo: 'rotativo do cartão', parcelado: 'parcelado do cartão', cheque: 'cheque especial', pessoal: 'empréstimo pessoal', consignado: 'consignado', outra: 'outra dívida' };
-function maiuscula(t) { return t.charAt(0).toUpperCase() + t.slice(1); }
-function marcado(nome) { var el = document.querySelector('input[name="' + nome + '"]:checked'); return el ? el.value : ''; }
-function lance(rotulo, principal, detalhe) {
-  return '<div class="lance"><span class="rot">' + rotulo + '</span>' + principal + (detalhe ? '<p>' + detalhe + '</p>' : '') + '</div>';
-}
-function calcCaso() {
+/* o plano é uma lista de lances em texto puro; a tela e a imagem desenham a mesma lista */
+function planoDoCaso() {
+  var frangos = somaFrangos();
   var entra = num('c-entra'), casa = num('c-casa'), placar = entra - casa - num('c-parc');
-  if (entra <= 0) { $('c-res').innerHTML = '<p class="msg">Comece pelo passo 1: <b>quanto entra no mês.</b> O seu jogo aparece aqui embaixo.</p>'; return; }
+  if (entra <= 0) return [];
   /* as dívidas, da mais cara para a mais barata; "outra" vai por último, porque o juro dela é um mistério */
   var dividas = DIVIDAS_CASO.map(function (id) { return { id: id, valor: num('c-d-' + id) }; })
     .filter(function (d) { return d.valor > 0; })
     .sort(function (a, b) { return (JUROS_ANO[b.id] || 0) - (JUROS_ANO[a.id] || 0); });
-  var frangos = num('c-frangos'), decimo = num('c-13'), consig = marcado('c-consig'), reserva = marcado('c-reserva');
-  var h = ['<h3>O seu jogo</h3>'];
+  var decimo = num('c-13'), consig = marcado('c-consig'), reserva = marcado('c-reserva');
+  var it = [];
 
-  h.push(lance('O placar do mês', '<div class="num' + (placar < 0 ? ' ruim' : '') + '">' + brl(placar) + '</div>',
-    placar < 0 ? 'Falta ' + brl(-placar) + ' por mês. <b>A defesa vem antes do ataque.</b>'
-    : placar === 0 ? 'Empate: nada sobra, nada falta.' : 'Sobra ' + brl(placar) + ' por mês.'));
+  it.push({ rot: 'O placar do mês', num: brl(placar), ruim: placar < 0,
+    texto: placar < 0 ? 'Falta ' + brl(-placar) + ' por mês. A defesa vem antes do ataque.'
+      : placar === 0 ? 'Empate: nada sobra, nada falta.' : 'Sobra ' + brl(placar) + ' por mês.' });
 
   if (!dividas.length) {
-    h.push(lance('As dívidas', '<b>Nenhuma dívida. Defesa arrumada.</b>'));
+    it.push({ rot: 'As dívidas', titulo: 'Nenhuma dívida. Defesa arrumada.' });
   } else {
     var d0 = dividas[0], depois = dividas.slice(1).map(function (d) { return NOME_DIVIDA[d.id] + ' (' + brl(d.valor) + ')'; });
     var ordem = depois.length ? ' Depois, nesta ordem: ' + depois.join(', ') + '.' : '';
     if (d0.id === 'outra') {
-      h.push(lance('Ataque primeiro', '<b>Descubra os juros da sua dívida</b>', 'Ligue e pergunte o preço total, o CET. Sem saber os juros, não dá para saber qual é a mais cara.'));
+      it.push({ rot: 'Ataque primeiro', titulo: 'Descubra os juros da sua dívida', texto: 'Ligue e pergunte o preço total, o CET. Sem saber os juros, não dá para saber qual é a mais cara.' });
     } else if (d0.id === 'consignado') {
-      h.push(lance('As dívidas', '<b>Consignado: ' + brl(d0.valor) + '</b>', 'É a dívida mais barata. Siga pagando e não pegue outro.'
-        + (depois.length ? ' Na outra dívida, ligue e pergunte o preço total, o CET, para saber os juros.' : '')));
+      it.push({ rot: 'As dívidas', titulo: 'Consignado: ' + brl(d0.valor), texto: 'É a dívida mais barata. Siga pagando e não pegue outro.'
+        + (depois.length ? ' Na outra dívida, ligue e pergunte o preço total, o CET, para saber os juros.' : '') });
     } else {
       var r = golContra(d0.valor, d0.id, 6);
-      h.push(lance('Ataque primeiro', '<b>' + maiuscula(NOME_DIVIDA[d0.id]) + ': ' + brl(d0.valor) + '</b>',
-        'Sem pagar, em seis meses vira ' + brl(r.valor) + (r.teto ? ', o teto da lei' : '') + '. Ligue, peça acordo e pergunte o preço total, o CET.' + ordem));
+      it.push({ rot: 'Ataque primeiro', titulo: maiuscula(NOME_DIVIDA[d0.id]) + ': ' + brl(d0.valor),
+        texto: 'Sem pagar, em seis meses vira ' + brl(r.valor) + (r.teto ? ', o teto da lei' : '') + '. Ligue, peça acordo e pergunte o preço total, o CET.' + ordem });
     }
   }
 
-  if (consig === 'troca') h.push(lance('O consignado', '<span class="selo bom">Substituição</span>', 'Jogada boa. E quem sai não volta: cartão quitado, nada de rotativo de novo.'));
-  if (consig === '1') h.push(lance('O consignado', '<span class="selo amarelo">Cartão amarelo</span>', 'Um consignado pagando o mês. O salário encolhe: não pegue outro.'));
-  if (consig === '2') h.push(lance('O consignado', '<span class="selo vermelho">Cartão vermelho</span>', 'Um em cima do outro. Não pegue mais nenhum: a saída começa por fechar o placar do mês.'));
+  if (consig === 'troca') it.push({ rot: 'O consignado', selo: 'bom', titulo: 'Substituição', texto: 'Jogada boa. E quem sai não volta: cartão quitado, nada de rotativo de novo.' });
+  if (consig === '1') it.push({ rot: 'O consignado', selo: 'amarelo', titulo: 'Cartão amarelo', texto: 'Um consignado pagando o mês. O salário encolhe: não pegue outro.' });
+  if (consig === '2') it.push({ rot: 'O consignado', selo: 'vermelho', titulo: 'Cartão vermelho', texto: 'Um em cima do outro. Não pegue mais nenhum: a saída começa por fechar o placar do mês.' });
 
   if (frangos > 0) {
-    h.push(lance('Os frangos', '<b>' + brl(frangos) + ' por mês, ' + brl(frangos * 12) + ' por ano</b>',
-      (placar < 0 && frangos >= -placar ? 'Só cortando os frangos, o seu placar vira. ' : '') + 'Corte um hoje.'));
+    it.push({ rot: 'Os frangos', titulo: brl(frangos) + ' por mês, ' + brl(frangos * 12) + ' por ano',
+      texto: (placar < 0 && frangos >= -placar ? 'Só cortando os frangos, o seu placar vira. ' : '') + 'Corte um hoje.' });
   }
 
-  h.push(reserva === 'sim'
-    ? lance('O goleiro', '<b>Goleiro em campo</b>', 'Próxima meta: um mês de contas da casa' + (casa > 0 ? ', ' + brl(casa) : '') + ', no automático.')
-    : lance('O goleiro', '<b>Comece a reserva com ' + brl(100) + '</b>', 'No automático, no dia do salário. É ela que impede a próxima dívida.'));
+  it.push(reserva === 'sim'
+    ? { rot: 'O goleiro', titulo: 'Goleiro em campo', texto: 'Próxima meta: um mês de contas da casa' + (casa > 0 ? ', ' + brl(casa) : '') + ', no automático.' }
+    : { rot: 'O goleiro', titulo: 'Comece a reserva com ' + brl(100), texto: 'No automático, no dia do salário. É ela que impede a próxima dívida.' });
 
   if (decimo > 0) {
     /* o 13º: dívida cara primeiro, depois o goleiro; o consignado e a "outra" ficam fora da conta */
@@ -418,42 +293,130 @@ function calcCaso() {
     });
     if (reserva !== 'sim' && resto > 0) { var g = Math.min(resto, 100); partes.push(brl(g) + ' no goleiro'); resto -= g; }
     if (resto > 0) partes.push(brl(resto) + (placar < 0 ? ' para segurar o janeiro' : ' livres. Aí sim, é festa'));
-    h.push(lance('O 13º: ' + brl(decimo), '<b>' + partes.join(' · ') + '</b>', 'Decida antes de cair: dívida cara primeiro, depois o goleiro.'));
+    it.push({ rot: 'O 13º: ' + brl(decimo), titulo: partes.join(' · '), texto: 'Decida antes de cair: dívida cara primeiro, depois o goleiro.' });
   }
 
   if (placar <= 0) {
-    h.push(lance('O jogo longo', '<b>Depois de virar o placar: ' + brl(2) + ' por dia</b>', 'Em dez anos, ' + brl(jogoLongo(2, 10, 0.01).total) + ', rendendo 1% ao mês.'));
+    it.push({ rot: 'O jogo longo', titulo: 'Depois de virar o placar: ' + brl(2) + ' por dia', texto: 'Em dez anos, ' + brl(jogoLongo(2, 10, 0.01).total) + ', rendendo 1% ao mês.' });
   } else {
     var dia = Math.max(2, Math.min(20, Math.floor(placar / 2 / 30)));
-    h.push(lance('O jogo longo', '<b>' + brl(dia) + ' por dia, no automático</b>',
-      (dia > 2 ? 'É metade do que sobra no mês. ' : '') + 'Rendendo 1% ao mês: em dez anos, ' + brl(jogoLongo(dia, 10, 0.01).total) + '; em trinta, ' + brl(jogoLongo(dia, 30, 0.01).total) + '.'));
+    it.push({ rot: 'O jogo longo', titulo: brl(dia) + ' por dia, no automático',
+      texto: (dia > 2 ? 'É metade do que sobra no mês. ' : '') + 'Rendendo 1% ao mês: em dez anos, ' + brl(jogoLongo(dia, 10, 0.01).total) + '; em trinta, ' + brl(jogoLongo(dia, 30, 0.01).total) + '.' });
   }
-  h.push('<p class="msg" style="margin-top:16px">Tire um print desta tela. O próximo passo está na aba <b>Treinos</b>.</p>');
-  $('c-res').innerHTML = h.join('');
+  return it;
 }
-document.querySelectorAll('#aba-caso input').forEach(function (el) { el.addEventListener('input', calcCaso); el.addEventListener('change', calcCaso); });
+function lanceHtml(it) {
+  return '<div class="lance"><span class="rot">' + it.rot + '</span>'
+    + (it.num ? '<div class="num' + (it.ruim ? ' ruim' : '') + '">' + it.num + '</div>' : '')
+    + (it.selo ? '<span class="selo ' + it.selo + '">' + it.titulo + '</span>' : it.titulo ? '<b>' + it.titulo + '</b>' : '')
+    + (it.texto ? '<p>' + it.texto + '</p>' : '') + '</div>';
+}
+function calcCaso() {
+  planoAtual = planoDoCaso();
+  $('c-salvar').hidden = !planoAtual.length;
+  $('c-img').hidden = true; $('c-img-dica').hidden = true;  /* mudou um número: a imagem antiga não vale mais */
+  $('c-res').innerHTML = !planoAtual.length
+    ? '<p class="msg">Comece pelo passo 1: <b>quanto entra no mês.</b> O seu jogo aparece aqui embaixo.</p>'
+    : '<h3>O seu jogo</h3>' + planoAtual.map(lanceHtml).join('')
+      + '<p class="msg" style="margin-top:16px">Guarde o seu plano no botão aqui embaixo: ele vira uma imagem no seu celular.</p>';
+}
+
+/* ---------- o meu plano em imagem: desenhada no próprio celular, sem passar por servidor nenhum ---------- */
+var COR = { fundo: '#073420', cartao: '#06120D', borda: 'rgba(201,243,29,.35)', lima: '#C9F31D', ouro: '#CFA972', branco: '#FFFFFF', texto: '#D6E3D9', apagado: 'rgba(255,255,255,.6)', ruim: '#FF8A7A' };
+var SELO = { bom: ['#C9F31D', '#06120D'], amarelo: ['#FFD60A', '#06120D'], vermelho: ['#E63946', '#FFFFFF'] };
+var BEBAS = '"Bebas Neue", Impact, sans-serif', INTER = 'Inter, "Segoe UI", Arial, sans-serif';
+function retangulo(ctx, x, y, w, h, r) {
+  ctx.beginPath(); ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+function quebra(ctx, texto, larg) {
+  var ls = [], l = '';
+  texto.split(' ').forEach(function (p) { var t = l ? l + ' ' + p : p; if (l && ctx.measureText(t).width > larg) { ls.push(l); l = p; } else l = t; });
+  if (l) ls.push(l);
+  return ls;
+}
+/* escreve o texto quebrado em linhas e devolve a altura; com pinta = false, só mede */
+function escreve(ctx, texto, x, y, larg, fonte, cor, alt, pinta) {
+  ctx.font = fonte; var ls = quebra(ctx, texto, larg);
+  if (pinta) { ctx.fillStyle = cor; ls.forEach(function (l, i) { ctx.fillText(l, x, y + i * alt); }); }
+  return ls.length * alt;
+}
+function bloco(ctx, it, x, y, w, pinta) {
+  var h = escreve(ctx, it.rot.toUpperCase(), x, y, w, '700 24px ' + INTER, COR.ouro, 34, pinta) + 8;
+  if (it.num) h += escreve(ctx, it.num, x, y + h, w, '110px ' + BEBAS, it.ruim ? COR.ruim : COR.lima, 104, pinta) + 4;
+  if (it.selo) {
+    ctx.font = '46px ' + BEBAS; var sw = ctx.measureText(it.titulo.toUpperCase()).width + 44;
+    if (pinta) { retangulo(ctx, x, y + h, sw, 64, 12); ctx.fillStyle = SELO[it.selo][0]; ctx.fill(); ctx.fillStyle = SELO[it.selo][1]; ctx.fillText(it.titulo.toUpperCase(), x + 22, y + h + 12); }
+    h += 64 + 14;
+  } else if (it.titulo) h += escreve(ctx, it.titulo, x, y + h, w, '700 40px ' + INTER, COR.branco, 50, pinta) + 8;
+  if (it.texto) h += escreve(ctx, it.texto, x, y + h, w, '30px ' + INTER, COR.texto, 42, pinta);
+  return h;
+}
+function semana(ctx, x, y, w, pinta) {
+  var h = escreve(ctx, 'A MINHA SEMANA DE TREINOS', x, y, w, '700 24px ' + INTER, COR.ouro, 34, pinta) + 6;
+  h += escreve(ctx, 'Um treino por dia. Marque quando fizer.', x, y + h, w, '30px ' + INTER, COR.texto, 42, pinta) + 18;
+  TREINOS.forEach(function (t, i) {
+    if (pinta) { ctx.strokeStyle = COR.lima; ctx.lineWidth = 3; retangulo(ctx, x, y + h + 2, 36, 36, 7); ctx.stroke(); ctx.font = '40px ' + BEBAS; ctx.fillStyle = COR.lima; ctx.fillText('DIA ' + (i + 1), x + 54, y + h); }
+    h += Math.max(46, escreve(ctx, t, x + 170, y + h + 2, w - 170, '600 30px ' + INTER, COR.branco, 40, pinta)) + 14;
+  });
+  return h;
+}
+function cartao(ctx, desenho, M, y, L, pinta) {
+  var P = 40, h = desenho(M + P, y + P, L - 2 * M - 2 * P, false) + 2 * P;
+  if (pinta) { retangulo(ctx, M, y, L - 2 * M, h, 26); ctx.fillStyle = COR.cartao; ctx.fill(); ctx.strokeStyle = COR.borda; ctx.lineWidth = 2; ctx.stroke(); desenho(M + P, y + P, L - 2 * M - 2 * P, true); }
+  return h;
+}
+function montaImagem(ctx, itens, L, pinta) {
+  var M = 56, y = 72, w = L - 2 * M;
+  ctx.textBaseline = 'top';
+  y += escreve(ctx, 'VIRA O JOGO', M, y, w, '104px ' + BEBAS, COR.branco, 96, pinta);
+  y += escreve(ctx, 'O MEU PLANO', M, y, w, '64px ' + BEBAS, COR.lima, 66, pinta) + 8;
+  y += escreve(ctx, 'Feito em ' + new Date().toLocaleDateString('pt-BR') + '. Daqui a 30 dias, faça de novo e compare o placar.', M, y, w, '600 28px ' + INTER, COR.texto, 38, pinta) + 34;
+  itens.forEach(function (it) {
+    y += cartao(ctx, function (x, yy, ww, p) { return bloco(ctx, it, x, yy, ww, p); }, M, y, L, pinta) + 20;
+  });
+  y += cartao(ctx, function (x, yy, ww, p) { return semana(ctx, x, yy, ww, p); }, M, y, L, pinta) + 34;
+  y += escreve(ctx, 'Feito no seu celular: ninguém viu estes números.', M, y, w, '600 26px ' + INTER, COR.texto, 36, pinta) + 10;
+  y += escreve(ctx, 'Material educativo, com valores aproximados. Não é recomendação de investimento. Palestra Vira o jogo · Gustavo Trotta, CFP®.', M, y, w, '22px ' + INTER, COR.apagado, 32, pinta);
+  return y + 72;
+}
+function desenhaPlano(itens) {
+  var L = 1080, altura = montaImagem(document.createElement('canvas').getContext('2d'), itens, L, false);
+  var c = document.createElement('canvas'); c.width = L; c.height = Math.ceil(altura);
+  var ctx = c.getContext('2d'); ctx.fillStyle = COR.fundo; ctx.fillRect(0, 0, L, c.height);
+  montaImagem(ctx, itens, L, true);
+  return c;
+}
+function dataUrlParaBlob(d) {
+  var b = atob(d.split(',')[1]), u = new Uint8Array(b.length);
+  for (var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i);
+  return new Blob([u], { type: 'image/png' });
+}
+/* tudo síncrono dentro do toque: o celular só deixa compartilhar logo depois de um toque */
+$('c-salvar').addEventListener('click', function () {
+  if (!planoAtual.length) return;
+  var url = desenhaPlano(planoAtual).toDataURL('image/png'), arquivo = null;
+  $('c-img').src = url; $('c-img').hidden = false; $('c-img-dica').hidden = false;
+  try { arquivo = new File([dataUrlParaBlob(url)], 'meu-plano-vira-o-jogo.png', { type: 'image/png' }); } catch (e) {}
+  if (arquivo && navigator.canShare && navigator.canShare({ files: [arquivo] })) {
+    navigator.share({ files: [arquivo], title: 'O meu plano' }).catch(function () {});
+  } else {
+    var a = document.createElement('a'); a.href = url; a.download = 'meu-plano-vira-o-jogo.png';
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+});
+
+document.querySelectorAll('#caso input').forEach(function (el) { el.addEventListener('input', calcCaso); el.addEventListener('change', calcCaso); });
 $('c-limpar').addEventListener('click', function () {
-  document.querySelectorAll('#aba-caso input[type=number]').forEach(function (el) { el.value = ''; });
-  document.querySelectorAll('#aba-caso input[value=nao]').forEach(function (el) { el.checked = true; });
+  document.querySelectorAll('#caso input[type=number]').forEach(function (el) { el.value = el.defaultValue; });
+  document.querySelectorAll('#caso input[type=checkbox]').forEach(function (el) { el.checked = false; });
+  document.querySelectorAll('#caso input[value=nao]').forEach(function (el) { el.checked = true; });
   calcCaso(); window.scrollTo({ top: $('app').offsetTop - 8, behavior: 'smooth' });
 });
 
-/* abas · o QR de cada slide abre direto na conta certa: #placar, #frangos, #gol, #longo, #treinos ou #caso */
-function mostrarAba(nome, rolar) {
-  if (!document.getElementById('aba-' + nome)) nome = 'placar';
-  document.querySelectorAll('.abas button').forEach(function (x) { x.classList.toggle('on', x.getAttribute('data-aba') === nome); });
-  document.querySelectorAll('.aba').forEach(function (s) { s.classList.toggle('on', s.id === 'aba-' + nome); });
-  if (rolar) window.scrollTo({ top: $('app').offsetTop - 8, behavior: 'smooth' });
-}
-document.querySelectorAll('.abas button').forEach(function (b) {
-  b.addEventListener('click', function () { mostrarAba(b.getAttribute('data-aba'), true); });
-});
-function abaDoEndereco() { var h = (location.hash || '').replace('#', ''); return ['frangos', 'gol', 'longo', 'treinos', 'caso'].indexOf(h) >= 0 ? h : 'placar'; }
-
-/* ---------- abre direto, sem cadastro ---------- */
-calcPlacar(); calcFrangos(); calcGol(); calcLongo(); calcCaso();
-mostrarAba(abaDoEndereco(), false);
-window.addEventListener('hashchange', function () { mostrarAba(abaDoEndereco(), true); });
+/* ---------- abre direto, sem cadastro; os endereços antigos (#placar, #treinos, #caso...) caem aqui ---------- */
+calcCaso();
 </script>
 </body>
 </html>
