@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Vira o jogo · Calculadora do placar</title>
-<meta name="description" content="As contas da palestra Vira o jogo, no celular: o placar do mês, os frangos, o gol contra da dívida e o jogo longo.">
+<meta name="description" content="As contas da palestra Vira o jogo, no celular: o placar do mês, os frangos, o gol contra da dívida, o jogo longo e o seu caso.">
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -87,6 +87,31 @@ input[type=range]{width:100%;accent-color:var(--lime);height:34px}
 footer{margin-top:28px;font-size:12px;line-height:1.5;color:var(--on3)}
 footer b{color:var(--on2)}
 @media (prefers-reduced-motion:no-preference){.resultado .num{transition:transform .25s}.resultado .num.pulo{transform:scale(1.06)}}
+/* meu caso: as contas da palestra com os números da pessoa */
+h3.passo{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:400;font-size:26px;letter-spacing:.03em;color:#fff;margin:26px 0 10px}
+h3.passo span{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--lime);color:var(--night);font-size:22px;padding-top:2px;flex:none}
+.card p.dica{font-size:15px;margin:0 0 10px}
+.dividas{display:grid;gap:8px}
+.divida{display:grid;grid-template-columns:1fr 132px;gap:10px;align-items:center;background:rgba(255,255,255,.06);border-radius:12px;padding:10px 12px;font-weight:600;font-size:15px;line-height:1.3;color:var(--on)}
+.divida small{display:block;font-weight:400;font-size:13px;color:var(--on3)}
+.divida .prefixo input{padding:9px 10px 9px 38px;font-size:16px}
+.divida .prefixo::before{left:11px;font-size:15px}
+.opcoes{display:grid;gap:8px}
+.opcoes label{display:grid;grid-template-columns:26px 1fr;gap:10px;align-items:center;background:rgba(255,255,255,.06);border-radius:12px;padding:12px 14px;font-weight:600;font-size:15px;cursor:pointer}
+.opcoes input{width:22px;height:22px;accent-color:var(--lime)}
+.opcoes label:has(input:checked){background:rgba(201,243,29,.14)}
+.jogo{text-align:left;margin-top:28px}
+.jogo h3{font-family:var(--display);font-weight:400;font-size:38px;line-height:1;letter-spacing:.02em;color:var(--lime);text-align:center;margin-bottom:4px}
+.lance{border-top:1px solid rgba(255,255,255,.12);padding-top:12px;margin-top:12px}
+.lance .rot{display:block}
+.lance .num{margin-top:4px}
+.lance b{display:block;font-size:19px;line-height:1.3;color:#fff;margin-top:4px}
+.lance p{font-size:15px;line-height:1.45;color:var(--on2);margin-top:4px}
+.selo{display:inline-block;font-family:var(--display);font-size:22px;letter-spacing:.06em;padding:6px 12px 3px;border-radius:8px;margin-top:6px}
+.selo.bom{background:var(--lime);color:var(--night)}
+.selo.amarelo{background:#FFD60A;color:var(--night)}
+.selo.vermelho{background:#E63946;color:#fff}
+.btn.sec{background:transparent;border:2px solid rgba(255,255,255,.25);color:var(--on2);font-size:22px;margin-top:14px}
 </style>
 </head>
 <body>
@@ -106,6 +131,7 @@ footer b{color:var(--on2)}
     <button type="button" data-aba="gol">Gol contra</button>
     <button type="button" data-aba="longo">Jogo longo</button>
     <button type="button" data-aba="treinos">Treinos</button>
+    <button type="button" data-aba="caso">Meu caso</button>
   </nav>
 
   <section class="card aba on" id="aba-placar">
@@ -153,6 +179,7 @@ footer b{color:var(--on2)}
         <option value="rotativo">Rotativo do cartão (pagou só o mínimo da fatura)</option>
         <option value="parcelado">Parcelado do cartão (parcelou a fatura, com juros)</option>
         <option value="cheque">Cheque especial (ficou no vermelho)</option>
+        <option value="pessoal">Empréstimo pessoal (sem desconto na folha)</option>
         <option value="consignado">Consignado (desconto na folha)</option>
       </select></div>
     <div class="campo" style="margin-top:12px"><span>Meses sem pagar</span>
@@ -199,6 +226,54 @@ footer b{color:var(--on2)}
     </div>
     <p class="nota">Esta página fica aberta para você voltar quando quiser.</p>
   </section>
+
+  <section class="card aba" id="aba-caso">
+    <h2>Meu caso</h2>
+    <p>Cinco passos, uns cinco minutos. No fim, o seu jogo. <b>Ninguém vê o que você escreve:</b> nada sai do seu celular.</p>
+
+    <h3 class="passo"><span>1</span> O placar do mês</h3>
+    <div class="campo"><span>O que entra no mês<small>o salário que cai na conta</small></span><div class="prefixo"><input type="number" id="c-entra" inputmode="decimal" min="0" step="10" placeholder="0"></div></div>
+    <div class="linha" style="margin-top:12px">
+      <div class="campo"><span>Contas da casa<small>aluguel, luz, água, mercado, ônibus</small></span><div class="prefixo"><input type="number" id="c-casa" inputmode="decimal" min="0" step="10" placeholder="0"></div></div>
+      <div class="campo"><span>Parcelas<small>cartão, loja, empréstimo</small></span><div class="prefixo"><input type="number" id="c-parc" inputmode="decimal" min="0" step="10" placeholder="0"></div></div>
+    </div>
+
+    <h3 class="passo"><span>2</span> As dívidas</h3>
+    <p class="dica">Quanto falta pagar em cada uma. Deixe em branco a que você não tem.</p>
+    <div class="dividas">
+      <label class="divida"><span>Rotativo do cartão<small>pagou só o mínimo da fatura</small></span><span class="prefixo"><input type="number" id="c-d-rotativo" inputmode="decimal" min="0" step="50" placeholder="0"></span></label>
+      <label class="divida"><span>Parcelado do cartão<small>parcelou a fatura, com juros</small></span><span class="prefixo"><input type="number" id="c-d-parcelado" inputmode="decimal" min="0" step="50" placeholder="0"></span></label>
+      <label class="divida"><span>Cheque especial<small>ficou no vermelho</small></span><span class="prefixo"><input type="number" id="c-d-cheque" inputmode="decimal" min="0" step="50" placeholder="0"></span></label>
+      <label class="divida"><span>Empréstimo pessoal<small>sem desconto na folha</small></span><span class="prefixo"><input type="number" id="c-d-pessoal" inputmode="decimal" min="0" step="50" placeholder="0"></span></label>
+      <label class="divida"><span>Consignado<small>desconto na folha</small></span><span class="prefixo"><input type="number" id="c-d-consignado" inputmode="decimal" min="0" step="50" placeholder="0"></span></label>
+      <label class="divida"><span>Outra dívida<small>loja, carnê, conta atrasada</small></span><span class="prefixo"><input type="number" id="c-d-outra" inputmode="decimal" min="0" step="50" placeholder="0"></span></label>
+    </div>
+
+    <h3 class="passo"><span>3</span> O consignado</h3>
+    <p class="dica">O empréstimo descontado na folha. Para que você usou?</p>
+    <div class="opcoes">
+      <label><input type="radio" name="c-consig" value="nao" checked><span>Não tenho consignado</span></label>
+      <label><input type="radio" name="c-consig" value="troca"><span>Para trocar uma dívida mais cara</span></label>
+      <label><input type="radio" name="c-consig" value="1"><span>Um, para pagar as contas do mês</span></label>
+      <label><input type="radio" name="c-consig" value="2"><span>Dois ou mais, para pagar as contas do mês</span></label>
+    </div>
+
+    <h3 class="passo"><span>4</span> Os frangos</h3>
+    <div class="campo"><span>O que sai todo mês sem você usar<small>streaming, pacote do banco, seguro, delivery. A aba Frangos ajuda a somar.</small></span><div class="prefixo"><input type="number" id="c-frangos" inputmode="decimal" min="0" step="5" placeholder="0"></div></div>
+
+    <h3 class="passo"><span>5</span> O goleiro e o 13º</h3>
+    <p class="dica">Você tem dinheiro guardado para um imprevisto?</p>
+    <div class="opcoes">
+      <label><input type="radio" name="c-reserva" value="nao" checked><span>Não tenho</span></label>
+      <label><input type="radio" name="c-reserva" value="pouco"><span>Menos de R$ 100</span></label>
+      <label><input type="radio" name="c-reserva" value="sim"><span>R$ 100 ou mais</span></label>
+    </div>
+    <div class="campo" style="margin-top:12px"><span>Quanto vai cair de 13º<small>o dinheiro das férias paga o janeiro: não conte com ele aqui</small></span><div class="prefixo"><input type="number" id="c-13" inputmode="decimal" min="0" step="50" placeholder="0"></div></div>
+
+    <div class="resultado jogo" id="c-res" aria-live="polite"></div>
+    <p class="nota">Valores aproximados, para você enxergar o seu jogo. Material educativo, não é recomendação. Tire um print: esta tela não fica salva.</p>
+    <button type="button" class="btn sec" id="c-limpar">Apagar e começar de novo</button>
+  </section>
 </main>
 
 <footer>
@@ -208,8 +283,8 @@ footer b{color:var(--on2)}
 </div>
 <script>
 /* ---------- as contas ---------- */
-var JUROS_ANO = { rotativo: 4.517, parcelado: 1.93, cheque: 1.50, consignado: 0.555 }; /* Banco Central, setembro de 2026; cheque especial: teto legal de 8% ao mês */
-var NOMES = { rotativo: 'no rotativo do cartão', parcelado: 'no parcelado do cartão', cheque: 'no cheque especial', consignado: 'no consignado' };
+var JUROS_ANO = { rotativo: 4.517, parcelado: 1.93, cheque: 1.50, pessoal: 1.109, consignado: 0.555 }; /* Banco Central, setembro de 2026; cheque especial: teto legal de 8% ao mês */
+var NOMES = { rotativo: 'no rotativo do cartão', parcelado: 'no parcelado do cartão', cheque: 'no cheque especial', pessoal: 'no empréstimo pessoal', consignado: 'no consignado' };
 function mensal(aa) { return Math.pow(1 + aa, 1 / 12) - 1; }
 function golContra(valor, tipo, meses) {
   var v = valor * Math.pow(1 + mensal(JUROS_ANO[tipo]), meses);
@@ -223,7 +298,8 @@ function jogoLongo(porDia, anos, taxaMes) {
 }
 function brl(v) {
   var neg = v < 0; v = Math.abs(v);
-  var s = v >= 100000 ? (Math.round(v / 1000)).toLocaleString('pt-BR') + ' mil' : Math.round(v).toLocaleString('pt-BR');
+  var s = v >= 1e6 ? (v / 1e6).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + (v < 2e6 ? ' milhão' : ' milhões')
+    : v >= 100000 ? (Math.round(v / 1000)).toLocaleString('pt-BR') + ' mil' : Math.round(v).toLocaleString('pt-BR');
   return (neg ? '−' : '') + 'R$ ' + s;
 }
 function $(id) { return document.getElementById(id); }
@@ -265,7 +341,7 @@ function calcGol() {
   $('g-msg').innerHTML = valor > 0
     ? brl(valor) + ' ' + NOMES[tipo] + ', ' + meses + (meses === 1 ? ' mês' : ' meses') + ' sem pagar: ' + (r.teto ? '<b>dobrou, e só parou aí porque a lei não deixa passar do dobro.</b>' : '<b>' + brl(r.valor - valor) + ' só de juros</b>, dinheiro que não leva nada para casa.')
     : 'Coloque o valor da dívida.';
-  $('g-nota').textContent = 'Juros médios do Banco Central em setembro de 2026: rotativo acima de 400% ao ano, parcelado cerca de 190%, consignado cerca de 55%; cheque especial no teto legal de 8% ao mês, cerca de 150% ao ano. Conta ilustrativa.';
+  $('g-nota').textContent = 'Juros médios do Banco Central em setembro de 2026: rotativo acima de 400% ao ano, parcelado cerca de 190%, empréstimo pessoal cerca de 110%, consignado cerca de 55%; cheque especial no teto legal de 8% ao mês, cerca de 150% ao ano. Conta ilustrativa.';
 }
 /* jogo longo */
 function calcLongo() {
@@ -281,7 +357,88 @@ document.querySelectorAll('#aba-frangos input').forEach(function (el) { el.addEv
 ['g-valor', 'g-tipo', 'g-meses'].forEach(function (id) { $(id).addEventListener('input', calcGol); });
 ['l-dia', 'l-anos'].forEach(function (id) { $(id).addEventListener('input', calcLongo); });
 
-/* abas · o QR de cada slide abre direto na conta certa: #placar, #frangos, #gol, #longo ou #treinos */
+/* ---------- meu caso: as contas da palestra com os números da pessoa; nada sai do celular ---------- */
+var DIVIDAS_CASO = ['rotativo', 'parcelado', 'cheque', 'pessoal', 'consignado', 'outra'];
+var NOME_DIVIDA = { rotativo: 'rotativo do cartão', parcelado: 'parcelado do cartão', cheque: 'cheque especial', pessoal: 'empréstimo pessoal', consignado: 'consignado', outra: 'outra dívida' };
+function maiuscula(t) { return t.charAt(0).toUpperCase() + t.slice(1); }
+function marcado(nome) { var el = document.querySelector('input[name="' + nome + '"]:checked'); return el ? el.value : ''; }
+function lance(rotulo, principal, detalhe) {
+  return '<div class="lance"><span class="rot">' + rotulo + '</span>' + principal + (detalhe ? '<p>' + detalhe + '</p>' : '') + '</div>';
+}
+function calcCaso() {
+  var entra = num('c-entra'), casa = num('c-casa'), placar = entra - casa - num('c-parc');
+  if (entra <= 0) { $('c-res').innerHTML = '<p class="msg">Comece pelo passo 1: <b>quanto entra no mês.</b> O seu jogo aparece aqui embaixo.</p>'; return; }
+  /* as dívidas, da mais cara para a mais barata; "outra" vai por último, porque o juro dela é um mistério */
+  var dividas = DIVIDAS_CASO.map(function (id) { return { id: id, valor: num('c-d-' + id) }; })
+    .filter(function (d) { return d.valor > 0; })
+    .sort(function (a, b) { return (JUROS_ANO[b.id] || 0) - (JUROS_ANO[a.id] || 0); });
+  var frangos = num('c-frangos'), decimo = num('c-13'), consig = marcado('c-consig'), reserva = marcado('c-reserva');
+  var h = ['<h3>O seu jogo</h3>'];
+
+  h.push(lance('O placar do mês', '<div class="num' + (placar < 0 ? ' ruim' : '') + '">' + brl(placar) + '</div>',
+    placar < 0 ? 'Falta ' + brl(-placar) + ' por mês. <b>A defesa vem antes do ataque.</b>'
+    : placar === 0 ? 'Empate: nada sobra, nada falta.' : 'Sobra ' + brl(placar) + ' por mês.'));
+
+  if (!dividas.length) {
+    h.push(lance('As dívidas', '<b>Nenhuma dívida. Defesa arrumada.</b>'));
+  } else {
+    var d0 = dividas[0], depois = dividas.slice(1).map(function (d) { return NOME_DIVIDA[d.id] + ' (' + brl(d.valor) + ')'; });
+    var ordem = depois.length ? ' Depois, nesta ordem: ' + depois.join(', ') + '.' : '';
+    if (d0.id === 'outra') {
+      h.push(lance('Ataque primeiro', '<b>Descubra os juros da sua dívida</b>', 'Ligue e pergunte o preço total, o CET. Sem saber os juros, não dá para saber qual é a mais cara.'));
+    } else if (d0.id === 'consignado') {
+      h.push(lance('As dívidas', '<b>Consignado: ' + brl(d0.valor) + '</b>', 'É a dívida mais barata. Siga pagando e não pegue outro.'
+        + (depois.length ? ' Na outra dívida, ligue e pergunte o preço total, o CET, para saber os juros.' : '')));
+    } else {
+      var r = golContra(d0.valor, d0.id, 6);
+      h.push(lance('Ataque primeiro', '<b>' + maiuscula(NOME_DIVIDA[d0.id]) + ': ' + brl(d0.valor) + '</b>',
+        'Sem pagar, em seis meses vira ' + brl(r.valor) + (r.teto ? ', o teto da lei' : '') + '. Ligue, peça acordo e pergunte o preço total, o CET.' + ordem));
+    }
+  }
+
+  if (consig === 'troca') h.push(lance('O consignado', '<span class="selo bom">Substituição</span>', 'Jogada boa. E quem sai não volta: cartão quitado, nada de rotativo de novo.'));
+  if (consig === '1') h.push(lance('O consignado', '<span class="selo amarelo">Cartão amarelo</span>', 'Um consignado pagando o mês. O salário encolhe: não pegue outro.'));
+  if (consig === '2') h.push(lance('O consignado', '<span class="selo vermelho">Cartão vermelho</span>', 'Um em cima do outro. Não pegue mais nenhum: a saída começa por fechar o placar do mês.'));
+
+  if (frangos > 0) {
+    h.push(lance('Os frangos', '<b>' + brl(frangos) + ' por mês, ' + brl(frangos * 12) + ' por ano</b>',
+      (placar < 0 && frangos >= -placar ? 'Só cortando os frangos, o seu placar vira. ' : '') + 'Corte um hoje.'));
+  }
+
+  h.push(reserva === 'sim'
+    ? lance('O goleiro', '<b>Goleiro em campo</b>', 'Próxima meta: um mês de contas da casa' + (casa > 0 ? ', ' + brl(casa) : '') + ', no automático.')
+    : lance('O goleiro', '<b>Comece a reserva com ' + brl(100) + '</b>', 'No automático, no dia do salário. É ela que impede a próxima dívida.'));
+
+  if (decimo > 0) {
+    /* o 13º: dívida cara primeiro, depois o goleiro; o consignado e a "outra" ficam fora da conta */
+    var resto = decimo, partes = [];
+    dividas.forEach(function (d) {
+      if (d.id === 'consignado' || d.id === 'outra' || resto <= 0) return;
+      var paga = Math.min(resto, d.valor); partes.push(brl(paga) + ' no ' + NOME_DIVIDA[d.id]); resto -= paga;
+    });
+    if (reserva !== 'sim' && resto > 0) { var g = Math.min(resto, 100); partes.push(brl(g) + ' no goleiro'); resto -= g; }
+    if (resto > 0) partes.push(brl(resto) + (placar < 0 ? ' para segurar o janeiro' : ' livres. Aí sim, é festa'));
+    h.push(lance('O 13º: ' + brl(decimo), '<b>' + partes.join(' · ') + '</b>', 'Decida antes de cair: dívida cara primeiro, depois o goleiro.'));
+  }
+
+  if (placar <= 0) {
+    h.push(lance('O jogo longo', '<b>Depois de virar o placar: ' + brl(2) + ' por dia</b>', 'Em dez anos, ' + brl(jogoLongo(2, 10, 0.01).total) + ', rendendo 1% ao mês.'));
+  } else {
+    var dia = Math.max(2, Math.min(20, Math.floor(placar / 2 / 30)));
+    h.push(lance('O jogo longo', '<b>' + brl(dia) + ' por dia, no automático</b>',
+      (dia > 2 ? 'É metade do que sobra no mês. ' : '') + 'Rendendo 1% ao mês: em dez anos, ' + brl(jogoLongo(dia, 10, 0.01).total) + '; em trinta, ' + brl(jogoLongo(dia, 30, 0.01).total) + '.'));
+  }
+  h.push('<p class="msg" style="margin-top:16px">Tire um print desta tela. O próximo passo está na aba <b>Treinos</b>.</p>');
+  $('c-res').innerHTML = h.join('');
+}
+document.querySelectorAll('#aba-caso input').forEach(function (el) { el.addEventListener('input', calcCaso); el.addEventListener('change', calcCaso); });
+$('c-limpar').addEventListener('click', function () {
+  document.querySelectorAll('#aba-caso input[type=number]').forEach(function (el) { el.value = ''; });
+  document.querySelectorAll('#aba-caso input[value=nao]').forEach(function (el) { el.checked = true; });
+  calcCaso(); window.scrollTo({ top: $('app').offsetTop - 8, behavior: 'smooth' });
+});
+
+/* abas · o QR de cada slide abre direto na conta certa: #placar, #frangos, #gol, #longo, #treinos ou #caso */
 function mostrarAba(nome, rolar) {
   if (!document.getElementById('aba-' + nome)) nome = 'placar';
   document.querySelectorAll('.abas button').forEach(function (x) { x.classList.toggle('on', x.getAttribute('data-aba') === nome); });
@@ -291,10 +448,10 @@ function mostrarAba(nome, rolar) {
 document.querySelectorAll('.abas button').forEach(function (b) {
   b.addEventListener('click', function () { mostrarAba(b.getAttribute('data-aba'), true); });
 });
-function abaDoEndereco() { var h = (location.hash || '').replace('#', ''); return ['frangos', 'gol', 'longo', 'treinos'].indexOf(h) >= 0 ? h : 'placar'; }
+function abaDoEndereco() { var h = (location.hash || '').replace('#', ''); return ['frangos', 'gol', 'longo', 'treinos', 'caso'].indexOf(h) >= 0 ? h : 'placar'; }
 
 /* ---------- abre direto, sem cadastro ---------- */
-calcPlacar(); calcFrangos(); calcGol(); calcLongo();
+calcPlacar(); calcFrangos(); calcGol(); calcLongo(); calcCaso();
 mostrarAba(abaDoEndereco(), false);
 window.addEventListener('hashchange', function () { mostrarAba(abaDoEndereco(), true); });
 </script>
