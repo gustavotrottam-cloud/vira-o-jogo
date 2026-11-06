@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vira o jogo · Placar da turma</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Vira o jogo · o placar da turma: o painel de resultados da página "O seu caso" (06/11/2026)
+   Lê da planilha as respostas sem nome (o Apps Script entrega só com a chave do link: resultados.html#chave=...)
+   e mostra só o grupo. Com #demo, mostra dados de exemplo, inventados, para ver como fica.
+   Cores conferidas no validador de paletas (faixa de luz, croma, daltonismo e contraste sobre o branco):
+   barra única #17804A; placar divergente, falta #B4472C/#E8A58B, zero a zero cinza, sobra #86B4E3/#1F6AA5;
+   consignado com as cores de estado, sempre com o nome ao lado. Um tema só, claro: é relatório e vai para PDF. */
+:root{
+  color-scheme:light;
+  --page:#F2F1EB; --surface:#FFFFFF; --rule:#E2DFD5; --rule2:#CFCBBE; --hover:#F6F5F0;
+  --ink:#0A0A0B; --ink2:#3D3D42; --ink3:#66666B;
+  --grass:#0B4A2C; --grass2:#073420; --lime:#C9F31D; --gold:#856839;
+  --barra:#17804A;
+  --falta2:#B4472C; --falta1:#E8A58B; --empate:#BDB9AD; --sobra1:#86B4E3; --sobra2:#1F6AA5;
+  --neutro:#BDB9AD; --bom:#0CA30C; --amarelo:#FAB219; --vermelho:#D03B3B;
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --display:"Bebas Neue",Impact,"Arial Narrow",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html{background:var(--page)}
+body{background:var(--page);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:var(--grass);font-weight:600}
+.wrap{max-width:1120px;margin:0 auto;padding:0 16px}
+button:focus-visible,.br:focus-visible,input:focus-visible,.chip:focus-visible{outline:2px solid var(--grass);outline-offset:2px}
+
+/* ---------- topo ---------- */
+.topo{background:var(--grass);color:#fff;padding:26px 0 22px}
+.topo .wrap{display:grid;grid-template-columns:1fr auto;gap:14px 24px;align-items:end}
+.marca{font-family:var(--display);font-size:24px;line-height:1;letter-spacing:.08em;color:var(--lime)}
+.topo h1{font-size:34px;line-height:1.1;font-weight:700;letter-spacing:-.01em;margin-top:6px}
+.topo .sub{color:#D6E3D9;font-size:15px;margin-top:6px;max-width:62ch}
+.topo .hora{color:rgba(255,255,255,.72);font-size:13px;margin-top:8px}
+.filtro-impresso{display:none;color:#D6E3D9;font-size:13px;margin-top:2px}
+.acoes{display:flex;gap:10px;flex-wrap:wrap}
+.btn{font:inherit;font-size:14px;font-weight:600;padding:9px 14px;border-radius:10px;border:1.5px solid rgba(255,255,255,.4);background:transparent;color:#fff;cursor:pointer}
+.btn.pri{background:var(--lime);border-color:var(--lime);color:var(--grass2)}
+@media (max-width:640px){.topo .wrap{grid-template-columns:1fr}.topo h1{font-size:28px}}
+
+/* ---------- filtro e avisos ---------- */
+.filtros{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:20px}
+.filtros .rot{font-size:13px;font-weight:600;color:var(--ink3);margin-right:4px}
+.chip{font:inherit;font-size:14px;font-weight:600;padding:6px 12px;border-radius:999px;border:1px solid var(--rule2);background:var(--surface);color:var(--ink2);cursor:pointer;font-variant-numeric:tabular-nums}
+.chip small{font-weight:500;color:var(--ink3);margin-left:4px}
+.chip[aria-pressed=true]{background:var(--grass);border-color:var(--grass);color:#fff}
+.chip[aria-pressed=true] small{color:#D6E3D9}
+.estado{margin-top:18px;background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--gold);border-radius:10px;padding:14px 16px;font-size:15px;color:var(--ink2)}
+.estado b{color:var(--ink)}
+.estado.demo{border-left-color:var(--falta2);background:#FBEFEA}
+.estado form{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.estado input{font:inherit;font-size:15px;padding:8px 10px;border:1px solid var(--rule2);border-radius:8px;min-width:0;flex:1 1 220px}
+.estado button{font:inherit;font-weight:600;padding:8px 14px;border-radius:8px;border:0;background:var(--grass);color:#fff;cursor:pointer}
+#painel{transition:opacity .2s}
+#painel.carregando{opacity:.55}
+
+/* ---------- o número que abre o painel ---------- */
+.hero{margin-top:16px;background:var(--surface);border:1px solid var(--rule);border-radius:16px;padding:22px 24px;display:grid;grid-template-columns:auto 1fr;gap:4px 22px;align-items:center}
+.hero .n{font-size:60px;line-height:1;font-weight:700;letter-spacing:-.03em;white-space:nowrap}
+.hero .t{font-size:24px;line-height:1.2;font-weight:600}
+.hero .s{grid-column:1/-1;color:var(--ink2);font-size:15px;margin-top:8px}
+.hero .marca-v{display:inline-block;width:12px;height:12px;border-radius:3px;background:var(--falta2);margin-right:8px;vertical-align:1px}
+@media (max-width:640px){.hero{grid-template-columns:1fr}.hero .n{font-size:42px;white-space:normal}}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:12px;margin-top:12px}
+.kpi{background:var(--surface);border:1px solid var(--rule);border-radius:14px;padding:14px 16px}
+.kpi .l{font-size:13px;font-weight:600;color:var(--ink3)}
+.kpi .v{font-size:30px;font-weight:700;line-height:1.15;letter-spacing:-.02em;margin-top:4px}
+.kpi .s{font-size:13px;color:var(--ink2);margin-top:2px}
+
+/* ---------- cartões ---------- */
+.grade{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;align-items:start}
+@media (max-width:860px){.grade{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:16px;padding:20px 20px 18px;min-width:0}
+.card.largo{grid-column:1/-1}
+.card h2{font-size:18px;font-weight:700;line-height:1.25}
+.card .q{font-size:14px;color:var(--ink3);margin-top:2px}
+.card .nota{font-size:14px;line-height:1.5;color:var(--ink2);margin-top:12px}
+.card .nota b{color:var(--ink)}
+.card .fonte{font-size:12px;color:var(--ink3);margin-top:10px}
+.card .vazio{font-size:14px;color:var(--ink3);margin-top:14px}
+.destaque{font-size:22px;font-weight:700;line-height:1.25;margin-top:12px}
+.destaque small{display:block;font-size:14px;font-weight:500;color:var(--ink2);margin-top:2px}
+
+/* ---------- barras: finas, de uma base só, com o valor na ponta ---------- */
+.barras{display:grid;gap:8px;margin-top:14px}
+.br{display:grid;grid-template-columns:minmax(118px,40%) 1fr;gap:12px;align-items:center;border-radius:8px;padding:3px 6px;margin:0 -6px;cursor:default}
+.br:hover,.br:focus-visible{background:var(--hover)}
+.br-rot{display:flex;gap:8px;align-items:flex-start;font-size:14px;line-height:1.3;color:var(--ink)}
+.br-rot small{display:block;font-size:12px;color:var(--ink3)}
+.sw{flex:none;width:10px;height:10px;border-radius:3px;margin-top:4px}
+.sw.carta{width:9px;height:12px;border-radius:2px;transform:rotate(-8deg);margin-top:3px}
+.sw.ok{border-radius:50%}
+.br-pista{display:flex;align-items:center;gap:8px;min-width:0;min-height:22px;border-left:1px solid var(--rule2)}
+.br-barra{display:block;flex:none;height:16px;border-radius:0 4px 4px 0}
+.br-val{font-size:14px;font-weight:600;color:var(--ink);white-space:nowrap;font-variant-numeric:tabular-nums}
+.br-val small{font-weight:500;color:var(--ink3);margin-left:5px}
+@media (max-width:480px){.br{grid-template-columns:1fr;gap:4px}}
+
+/* ---------- tabelas ---------- */
+.rolo{overflow-x:auto;margin-top:12px}
+table.tab{width:100%;border-collapse:collapse;font-size:14px;min-width:520px}
+table.tab th{font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink3);text-align:left;padding:6px 8px;border-bottom:1px solid var(--rule2);white-space:nowrap}
+table.tab td{padding:9px 8px;border-bottom:1px solid var(--rule);vertical-align:middle;color:var(--ink2)}
+table.tab tr.total td{border-bottom:0;border-top:1px solid var(--rule2);font-weight:600;color:var(--ink)}
+table.tab td.k{color:var(--ink);font-weight:600}
+table.tab td.k small{display:block;font-weight:400;font-size:12px;color:var(--ink3)}
+table.tab .n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mini{display:flex;align-items:center;gap:8px;white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--ink)}
+.mini i{display:block;flex:none;height:10px;border-radius:0 4px 4px 0;background:var(--barra)}
+.mini small{color:var(--ink3)}
+table.dias{min-width:0}
+
+/* ---------- como contamos e rodapé ---------- */
+.metodo{margin-top:14px;background:var(--surface);border:1px solid var(--rule);border-radius:16px;padding:18px 20px}
+.metodo h2{font-size:16px;font-weight:700}
+.metodo ul{margin:8px 0 0 18px;font-size:14px;color:var(--ink2);display:grid;gap:4px}
+footer{margin:18px 0 40px;font-size:12px;line-height:1.55;color:var(--ink3)}
+footer b{color:var(--ink2)}
+#tip{position:fixed;z-index:50;pointer-events:none;background:#0A0A0B;color:#fff;border-radius:8px;padding:8px 10px;font-size:13px;line-height:1.35;max-width:280px;box-shadow:0 6px 20px rgba(0,0,0,.18)}
+#tip b{display:block;font-size:15px;font-weight:700}
+#tip span{color:#D9D8D2}
+
+/* ---------- PDF: A4, sem botões, com o filtro escrito no topo ---------- */
+@media print{
+  @page{size:A4;margin:11mm}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  html,body{background:#fff}
+  .acoes,.filtros,#tip,.estado:not(.demo){display:none!important}
+  .filtro-impresso{display:block}
+  .wrap{max-width:none;padding:0}
+  .topo{padding:16px 18px;border-radius:12px}
+  .grade{grid-template-columns:1fr 1fr}
+  .card.largo{grid-column:1/-1}
+  .hero,.kpi,.card,.metodo{break-inside:avoid}
+  .rolo{overflow:visible}
+  table.tab{min-width:0}
+}
+</style>
+</head>
+<body>
+
+<header class="topo"><div class="wrap">
+  <div>
+    <p class="marca">Vira o jogo</p>
+    <h1>O placar da turma</h1>
+    <p class="sub">O que as pessoas contaram na página “O seu caso”, sem nome e sem telefone. Cataguases, novembro de 2026.</p>
+    <p class="hora" id="hora"></p>
+    <p class="filtro-impresso" id="filtro-impresso"></p>
+  </div>
+  <div class="acoes"><button class="btn" type="button" id="b-atualizar">Atualizar</button><button class="btn pri" type="button" id="b-pdf">Salvar em PDF</button></div>
+</div></header>
+
+<main class="wrap">
+  <div class="estado" id="estado" hidden></div>
+  <div id="painel" hidden>
+    <div class="filtros" id="filtros" role="group" aria-label="Filtrar pelo dia do primeiro acesso"></div>
+    <section class="hero" id="hero" aria-live="polite"></section>
+    <section class="kpis" id="kpis"></section>
+    <div class="grade" id="grade">
+      <article class="card" id="c-placar"><h2>O placar do mês</h2><p class="q">O que entra, menos as contas da casa e as parcelas</p><div class="corpo"></div></article>
+      <article class="card" id="c-parcelas"><h2>As parcelas no salário</h2><p class="q">Quanto do que entra já sai em parcela de cartão, loja e empréstimo</p><div class="corpo"></div></article>
+      <article class="card largo" id="c-dividas"><h2>As dívidas</h2><p class="q">Do juro mais caro para o mais barato, com quanto falta pagar, pelo que cada um contou</p><div class="corpo"></div></article>
+      <article class="card" id="c-consig"><h2>O consignado</h2><p class="q">Para que usou o empréstimo descontado na folha</p><div class="corpo"></div></article>
+      <article class="card" id="c-goleiro"><h2>O goleiro</h2><p class="q">Dinheiro guardado para um imprevisto</p><div class="corpo"></div></article>
+      <article class="card" id="c-frangos"><h2>Os frangos</h2><p class="q">O que sai da conta todo mês sem ninguém usar</p><div class="corpo"></div></article>
+      <article class="card" id="c-13"><h2>O 13º</h2><p class="q">Quanto vai cair e quanto já tem destino</p><div class="corpo"></div></article>
+      <article class="card" id="c-longo"><h2>O jogo longo</h2><p class="q">Quanto dizem que conseguem guardar por dia</p><div class="corpo"></div></article>
+      <article class="card" id="c-dias"><h2>Por dia</h2><p class="q">Pelo dia em que o celular abriu a página pela primeira vez</p><div class="corpo"></div></article>
+    </div>
+    <section class="metodo" id="metodo"></section>
+  </div>
+  <footer><b>Gustavo Trotta, CFP®</b> · Planejador financeiro certificado · gustavotrotta.com.br. Dados sem nome, informados pelas próprias pessoas, com valores aproximados. Material educativo, não constitui recomendação de investimento. Gustavo Trotta de Mendonça é assessor de investimentos e sócio da Valor Investimentos – Assessoria de Investimentos Ltda. (CNPJ 06.031.097/0001-86), contratada da XP Investimentos CCTVM S.A. Reclamações: Ouvidoria XP 0800 722 3730, de segunda a sexta, das 9h às 18h.</footer>
+</main>
+<div id="tip" role="tooltip" hidden></div>
+
+<script>
+/* a mesma planilha que recebe da página; sem a chave, ela não entrega nada */
+var FONTE = 'https://script.google.com/macros/s/AKfycby0ZBYsnO-4hvHZGK_H1n003qjOdk-CiBt8-tKww35Esy21eucgACDXaieIRs6pBp-H/exec';
+var SELIC_ANO = 0.1375;  /* a mesma da página: meta da Selic, 13,75% ao ano desde 17/09/2026 */
+var DIVIDAS = [
+  { id: 'rotativo', nome: 'Rotativo do cartão', juros: '451,7% ao ano' },
+  { id: 'parcelado', nome: 'Parcelado do cartão', juros: '193% ao ano' },
+  { id: 'cheque', nome: 'Cheque especial', juros: 'até 8% ao mês' },
+  { id: 'pessoal', nome: 'Empréstimo pessoal', juros: '110,9% ao ano' },
+  { id: 'consignado', nome: 'Consignado', juros: '55,5% ao ano' },
+  { id: 'outra', nome: 'Outra dívida', juros: 'juros que a pessoa não sabe' }
+];
+var CARAS = ['rotativo', 'parcelado', 'cheque', 'pessoal'];
+var FRANGOS = { streaming: 'Streaming que ninguém assiste', tarifas: 'Pacote de tarifas do banco', seguro: 'Seguro ou “proteção” que não pediu',
+  celular: 'Pacote do celular maior que o uso', delivery: 'Taxa de entrega do delivery', app: 'Assinatura de app que renovou sozinha' };
+var MIN_TIPICO = 5;  /* com menos respostas que isso, o valor típico não aparece: ninguém deve ser reconhecido */
+
+function $(id) { return document.getElementById(id); }
+function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+function guarda(k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} }
+function le(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function nnum(v) { var x = Number(v); return isFinite(x) ? x : 0; }
+function inteiro(n) { return Math.round(n).toLocaleString('pt-BR'); }
+function brl(v) {
+  var neg = v < 0; v = Math.abs(v);
+  var s = v >= 1e6 ? (v / 1e6).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + (v < 2e6 ? ' milhão' : ' milhões')
+    : v >= 10000 ? Math.round(v / 1000).toLocaleString('pt-BR') + ' mil' : Math.round(v).toLocaleString('pt-BR');
+  return (neg ? '−' : '') + 'R$ ' + s;
+}
+function brlDia(v) { return v % 1 ? 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : brl(v); }
+function pct(k, n) { return n ? Math.round(k / n * 100) + '%' : '—'; }
+function emCada10(k, n) { return n >= 10 ? Math.round(k / n * 10) + ' em cada 10' : k + ' de ' + n; }
+function pessoas(n) { return inteiro(n) + (n === 1 ? ' pessoa' : ' pessoas'); }
+function soma(a) { return a.reduce(function (s, v) { return s + v; }, 0); }
+function tipico(a) {
+  if (a.length < MIN_TIPICO) return null;
+  var o = a.slice().sort(function (x, y) { return x - y; }), m = o.length >> 1;
+  return o.length % 2 ? o[m] : (o[m - 1] + o[m]) / 2;
+}
+function jogoLongo(porDia, anos) {
+  var i = Math.pow(1 + SELIC_ANO, 1 / 12) - 1, p = porDia * 30, n = anos * 12;
+  return p * (Math.pow(1 + i, n) - 1) / i;
+}
+var SP = { timeZone: 'America/Sao_Paulo' };
+function diaChave(ms) { return new Date(ms).toLocaleDateString('en-CA', SP); }
+function diaRotulo(chave) { var p = chave.split('-'); return p[2] + '/' + p[1]; }
+
+/* ---------- das linhas da planilha às pessoas: um celular, uma pessoa; vale a última versão do caso ---------- */
+function pessoasDe(json) {
+  var c = json.campos, ev = [];
+  (json.linhas || []).forEach(function (l) {
+    var o = {}; c.forEach(function (k, i) { o[k] = l[i]; });
+    o.quando = Number(o.quando) || 0;
+    if (o.tipo && o.tipo !== 'teste' && o.codigo) ev.push(o);
+  });
+  ev.sort(function (a, b) { return a.quando - b.quando; });
+  var mapa = {}, lista = [];
+  ev.forEach(function (e) {
+    var p = mapa[e.codigo];
+    if (!p) { p = mapa[e.codigo] = { primeiro: e.quando, caso: null, salvou: false, saiu: false }; lista.push(p); }
+    if (e.tipo === 'sair') { p.caso = null; p.salvou = false; p.saiu = true; return; }
+    p.saiu = false;
+    if ((e.tipo === 'caso' || e.tipo === 'plano') && nnum(e.entra) > 0) p.caso = e;
+    if (e.tipo === 'plano') p.salvou = true;
+  });
+  lista.forEach(function (p) { p.dia = diaChave(p.primeiro); });
+  return lista;
+}
+
+function conta(ps) {
+  var r = { abriram: ps.length, fora: 0, salvaram: 0, casos: [] };
+  ps.forEach(function (p) { if (p.saiu) r.fora++; if (p.caso) { r.casos.push(p.caso); if (p.salvou) r.salvaram++; } });
+  var cs = r.casos; r.n = cs.length;
+  cs.forEach(function (c) {
+    c._placar = nnum(c.placar); c._entra = nnum(c.entra); c._parc = nnum(c.parc);
+    c._div = {}; DIVIDAS.forEach(function (d) { c._div[d.id] = Math.max(0, nnum(c[d.id])); });
+    c._total = soma(DIVIDAS.map(function (d) { return c._div[d.id]; }));
+    c._caras = soma(CARAS.map(function (id) { return c._div[id]; }));
+  });
+  r.vermelho = cs.filter(function (c) { return c._placar < 0; });
+  r.comDivida = cs.filter(function (c) { return c._total > 0; });
+  r.dividaSoma = soma(cs.map(function (c) { return c._total; }));
+  return r;
+}
+
+/* ---------- desenho: barras com o nome, a barra e o valor na ponta ---------- */
+function barras(alvo, itens, total) {
+  var max = Math.max.apply(null, itens.map(function (i) { return i.n; }).concat([1]));
+  var box = el('div', 'barras');
+  itens.forEach(function (i) {
+    var linha = el('div', 'br'); linha.tabIndex = 0;
+    var rot = el('div', 'br-rot');
+    if (i.cor) { var sw = el('span', 'sw' + (i.forma ? ' ' + i.forma : '')); sw.style.background = i.cor; rot.appendChild(sw); }
+    var t = el('span', null, i.rot); if (i.sub) t.appendChild(el('small', null, i.sub)); rot.appendChild(t);
+    var pista = el('div', 'br-pista'), b = el('span', 'br-barra');
+    b.style.width = i.n ? 'calc((100% - 84px) * ' + (i.n / max).toFixed(4) + ')' : '0';
+    b.style.background = i.cor || 'var(--barra)';
+    var v = el('span', 'br-val', inteiro(i.n)); v.appendChild(el('small', null, pct(i.n, total)));
+    pista.appendChild(b); pista.appendChild(v);
+    linha.appendChild(rot); linha.appendChild(pista);
+    var dica = pessoas(i.n) + ' · ' + pct(i.n, total) + ' de ' + inteiro(total);
+    linha.setAttribute('aria-label', i.rot + ': ' + dica);
+    linha.dataset.tipV = dica; linha.dataset.tipR = i.rot + (i.sub ? ' (' + i.sub + ')' : '');
+    box.appendChild(linha);
+  });
+  alvo.appendChild(box);
+}
+function nota(alvo, partes) {
+  var p = el('p', 'nota');
+  partes.forEach(function (x) { p.appendChild(typeof x === 'string' ? document.createTextNode(x) : el('b', null, x.b)); });
+  alvo.appendChild(p);
+}
+function corpo(id) { var c = document.querySelector('#' + id + ' .corpo'); c.textContent = ''; return c; }
+function vazio(alvo, txt) { alvo.appendChild(el('p', 'vazio', txt)); }
+
+function desenhaPlacar(r) {
+  var a = corpo('c-placar'), cs = r.casos;
+  var F = [
+    { rot: 'Falta mais de R$ 500', cor: 'var(--falta2)', f: function (v) { return v < -500; } },
+    { rot: 'Falta até R$ 500', cor: 'var(--falta1)', f: function (v) { return v < 0 && v >= -500; } },
+    { rot: 'Zero a zero', sub: 'nada sobra, nada falta', cor: 'var(--empate)', f: function (v) { return v === 0; } },
+    { rot: 'Sobra até R$ 300', cor: 'var(--sobra1)', f: function (v) { return v > 0 && v <= 300; } },
+    { rot: 'Sobra mais de R$ 300', cor: 'var(--sobra2)', f: function (v) { return v > 300; } }
+  ];
+  barras(a, F.map(function (x) { return { rot: x.rot, sub: x.sub, cor: x.cor, n: cs.filter(function (c) { return x.f(c._placar); }).length }; }), r.n);
+  var faltas = r.vermelho.map(function (c) { return -c._placar; }), t = tipico(faltas);
+  if (!faltas.length) return;
+  if (t == null) nota(a, ['No vermelho, ainda são poucas respostas para mostrar o valor típico.']);
+  else nota(a, ['No vermelho, falta ', { b: brl(t) + ' por mês' }, ' para a pessoa típica. Somando todo mundo, ', { b: brl(soma(faltas)) + ' por mês' }, '.']);
+}
+function desenhaParcelas(r) {
+  var a = corpo('c-parcelas'), cs = r.casos;
+  var F = [
+    { rot: 'Sem parcelas', f: function (x) { return x === 0; } },
+    { rot: 'Até 1 em cada 10 reais', sub: 'até 10% do que entra', f: function (x) { return x > 0 && x <= 0.1; } },
+    { rot: 'De 1 a 3 em cada 10 reais', sub: 'de 10% a 30%', f: function (x) { return x > 0.1 && x <= 0.3; } },
+    { rot: 'Mais de 3 em cada 10 reais', sub: 'mais de 30% do que entra', f: function (x) { return x > 0.3; } }
+  ];
+  var peso = cs.map(function (c) { return c._entra > 0 ? c._parc / c._entra : 0; });
+  barras(a, F.map(function (x) { return { rot: x.rot, sub: x.sub, n: peso.filter(x.f).length }; }), r.n);
+  var t = tipico(peso.filter(function (x) { return x > 0; }));
+  if (t != null) nota(a, ['Para quem tem parcela, ela leva ', { b: Math.round(t * 100) + '% do que entra' }, ' na pessoa típica. O consignado já vem descontado antes do salário cair: não está nesta conta.']);
+}
+function desenhaDividas(r) {
+  var a = corpo('c-dividas'), cs = r.casos, n = r.n;
+  if (!n) return vazio(a, 'Ainda sem casos.');
+  var rolo = el('div', 'rolo'), tab = el('table', 'tab'), th = el('thead'), tr = el('tr');
+  ['Dívida', 'Quantos têm', 'Somando', 'Valor típico'].forEach(function (h, i) { var x = el('th', i > 1 ? 'n' : null, h); x.scope = 'col'; tr.appendChild(x); });
+  th.appendChild(tr); tab.appendChild(th);
+  var tb = el('tbody'), max = 1;
+  var linhas = DIVIDAS.map(function (d) {
+    var v = cs.map(function (c) { return c._div[d.id]; }).filter(function (x) { return x > 0; });
+    max = Math.max(max, v.length);
+    return { d: d, v: v };
+  });
+  function linhaTab(nome, sub, v, cls) {
+    var l = el('tr', cls), k = el('td', 'k', nome); if (sub) k.appendChild(el('small', null, sub)); l.appendChild(k);
+    var q = el('td'), m = el('div', 'mini'), i = el('i'); i.style.width = Math.round(v.length / max * 120) + 'px';
+    if (v.length) m.appendChild(i);
+    m.appendChild(document.createTextNode(inteiro(v.length) + ' ')); m.appendChild(el('small', null, pct(v.length, n)));
+    q.appendChild(m); l.appendChild(q);
+    l.appendChild(el('td', 'n', v.length ? brl(soma(v)) : '—'));
+    var t = tipico(v); l.appendChild(el('td', 'n', !v.length ? '—' : t == null ? 'poucas respostas' : brl(t)));
+    tb.appendChild(l);
+  }
+  linhas.forEach(function (x) { linhaTab(x.d.nome, x.d.juros, x.v); });
+  max = Math.max(max, r.comDivida.length);
+  linhaTab('Pelo menos uma dívida', 'todas somadas, por pessoa', r.comDivida.map(function (c) { return c._total; }), 'total');
+  tab.appendChild(tb); rolo.appendChild(tab); a.appendChild(rolo);
+  var caras = cs.filter(function (c) { return c._caras > 0; });
+  nota(a, [{ b: emCada10(caras.length, n) }, ' têm pelo menos uma dívida cara (rotativo, parcelado, cheque especial ou empréstimo pessoal). Somando, ', { b: brl(soma(caras.map(function (c) { return c._caras; }))) }, ' de dívida cara.']);
+  a.appendChild(el('p', 'fonte', 'Juros: Banco Central, setembro de 2026; cheque especial no teto legal de 8% ao mês. Valor típico: a mediana, o valor do meio (metade deve menos, metade deve mais).'));
+}
+function desenhaConsig(r) {
+  var a = corpo('c-consig'), cs = r.casos;
+  var conta1 = function (vals) { return cs.filter(function (c) { return vals.indexOf(String(c.consig || 'nao')) >= 0; }).length; };
+  var itens = [
+    { rot: 'Não tem consignado', cor: 'var(--neutro)', n: conta1(['nao', '']) },
+    { rot: 'Substituição', sub: 'trocou uma dívida mais cara', cor: 'var(--bom)', forma: 'ok', n: conta1(['troca']) },
+    { rot: 'Cartão amarelo', sub: 'um, para pagar as contas do mês', cor: 'var(--amarelo)', forma: 'carta', n: conta1(['1']) },
+    { rot: 'Cartão vermelho', sub: 'dois ou mais, para pagar o mês', cor: 'var(--vermelho)', forma: 'carta', n: conta1(['2']) }
+  ];
+  barras(a, itens, r.n);
+  var mes = itens[2].n + itens[3].n;
+  nota(a, [{ b: pessoas(mes) }, ' (' + pct(mes, r.n) + ') usam o consignado para pagar o mês: o salário encolhe e a conta não fecha.']);
+}
+function desenhaGoleiro(r) {
+  var a = corpo('c-goleiro'), cs = r.casos;
+  var q = function (v) { return cs.filter(function (c) { return String(c.reserva || 'nao') === v; }).length; };
+  var itens = [{ rot: 'Não tem reserva', n: q('nao') }, { rot: 'Menos de R$ 100', n: q('pouco') }, { rot: 'R$ 100 ou mais', n: q('sim') }];
+  barras(a, itens, r.n);
+  nota(a, [{ b: emCada10(itens[0].n, r.n) }, ' não têm nenhuma reserva: o próximo imprevisto vira dívida.']);
+}
+function desenhaFrangos(r) {
+  var a = corpo('c-frangos'), cs = r.casos;
+  var com = cs.filter(function (c) { return nnum(c.frangos) > 0; }), cont = {};
+  Object.keys(FRANGOS).forEach(function (k) { cont[k] = 0; });
+  cs.forEach(function (c) { String(c.marcados || '').split(' ').forEach(function (k) { if (cont.hasOwnProperty(k)) cont[k]++; }); });
+  var d = el('p', 'destaque', emCada10(com.length, r.n) + ' marcaram pelo menos um frango');
+  a.appendChild(d);
+  barras(a, Object.keys(FRANGOS).map(function (k) { return { rot: FRANGOS[k], n: cont[k] }; }).sort(function (x, y) { return y.n - x.n; }), r.n);
+  var t = tipico(com.map(function (c) { return nnum(c.frangos); })), s = soma(com.map(function (c) { return nnum(c.frangos); }));
+  if (t != null) nota(a, ['Quem tem frango perde ', { b: brl(t) + ' por mês' }, ' na pessoa típica. Somando a turma: ', { b: brl(s) + ' por mês, ' + brl(s * 12) + ' por ano' }, '.']);
+}
+function desenha13(r) {
+  var a = corpo('c-13'), cs = r.casos, com = cs.filter(function (c) { return nnum(c.decimo) > 0; });
+  if (!com.length) return vazio(a, 'Ninguém informou o 13º ainda.');
+  var t = tipico(com.map(function (c) { return nnum(c.decimo); }));
+  var vai = com.map(function (c) { return Math.min(nnum(c.decimo), c._caras); }), nao = com.filter(function (c) { return c._caras > nnum(c.decimo); });
+  var comDestino = vai.filter(function (v) { return v > 0; }).length;
+  a.appendChild(el('p', 'destaque', brl(soma(vai)) + ' do 13º já têm destino: dívida cara'));
+  a.lastChild.appendChild(el('small', null, pessoas(comDestino) + ' de ' + inteiro(com.length) + ' que informaram o 13º precisam dele para a dívida cara.'));
+  var partes = [inteiro(com.length) + ' de ' + inteiro(r.n) + ' informaram quanto vai cair'];
+  if (t == null) partes.push('.'); else partes.push(', ', { b: brl(t) }, ' na pessoa típica.');
+  if (nao.length) partes.push(' Para ', { b: pessoas(nao.length) }, ', nem o 13º inteiro paga a dívida cara.');
+  nota(a, partes);
+}
+function desenhaLongo(r) {
+  var a = corpo('c-longo'), cs = r.casos, d = cs.map(function (c) { return nnum(c.dia); }).filter(function (x) { return x > 0; });
+  if (!d.length) return vazio(a, 'Ninguém escreveu ainda quanto consegue guardar por dia.');
+  var F = [
+    { rot: 'Até R$ 2 por dia', f: function (x) { return x <= 2; } },
+    { rot: 'De R$ 2,50 a R$ 5', f: function (x) { return x > 2 && x <= 5; } },
+    { rot: 'De R$ 5,50 a R$ 10', f: function (x) { return x > 5 && x <= 10; } },
+    { rot: 'Mais de R$ 10 por dia', f: function (x) { return x > 10; } }
+  ];
+  barras(a, F.map(function (x) { return { rot: x.rot, n: d.filter(x.f).length }; }), d.length);
+  var t = tipico(d), partes = [inteiro(d.length) + ' de ' + inteiro(r.n) + ' escreveram quanto conseguem guardar.'];
+  if (t != null) partes.push(' A pessoa típica: ', { b: brlDia(t) + ' por dia' }, ', que viram ', { b: brl(jogoLongo(t, 10)) + ' em 10 anos' }, ' com a Selic de hoje (13,75% ao ano, sem imposto nem inflação).');
+  nota(a, partes);
+}
+function desenhaDias(ps) {
+  var a = corpo('c-dias'), g = {};
+  ps.forEach(function (p) { var x = g[p.dia] || (g[p.dia] = { abriram: 0, caso: 0, salvou: 0 }); x.abriram++; if (p.caso) x.caso++; if (p.caso && p.salvou) x.salvou++; });
+  var rolo = el('div', 'rolo'), tab = el('table', 'tab dias'), h = el('tr');
+  ['Dia', 'Abriram', 'Fizeram o caso', 'Salvaram o plano'].forEach(function (t, i) { var x = el('th', i ? 'n' : null, t); x.scope = 'col'; h.appendChild(x); });
+  var th = el('thead'); th.appendChild(h); tab.appendChild(th);
+  var tb = el('tbody');
+  Object.keys(g).sort().forEach(function (k) {
+    var l = el('tr'); l.appendChild(el('td', 'k', diaRotulo(k)));
+    l.appendChild(el('td', 'n', inteiro(g[k].abriram))); l.appendChild(el('td', 'n', inteiro(g[k].caso))); l.appendChild(el('td', 'n', inteiro(g[k].salvou)));
+    tb.appendChild(l);
+  });
+  tab.appendChild(tb); rolo.appendChild(tab); a.appendChild(rolo);
+}
+
+function desenhaTopo(r) {
+  var h = $('hero'); h.textContent = '';
+  if (!r.n) {
+    h.appendChild(el('p', 'n', '0')); h.appendChild(el('p', 't', 'casos até agora'));
+    h.appendChild(el('p', 's', r.abriram ? inteiro(r.abriram) + ' celulares abriram a página, mas ninguém preencheu ainda o que entra no mês.' : 'Ainda não chegou nenhuma resposta.'));
+  } else {
+    h.appendChild(el('p', 'n', emCada10(r.vermelho.length, r.n)));
+    var t = el('p', 't'); t.appendChild(el('span', 'marca-v')); t.appendChild(document.createTextNode('fecham o mês no vermelho')); h.appendChild(t);
+    var faltas = r.vermelho.map(function (c) { return -c._placar; });
+    h.appendChild(el('p', 's', inteiro(r.vermelho.length) + ' de ' + pessoas(r.n) + ' que fizeram o caso'
+      + (faltas.length >= MIN_TIPICO ? '. Somando, faltam ' + brl(soma(faltas)) + ' por mês para fechar as contas.' : '.')));
+  }
+  var k = $('kpis'); k.textContent = '';
+  [
+    ['Abriram a página', inteiro(r.abriram), 'celulares diferentes'],
+    ['Fizeram o caso', inteiro(r.n), pct(r.n, r.abriram) + ' de quem abriu'],
+    ['Salvaram o plano', inteiro(r.salvaram), pct(r.salvaram, r.n) + ' de quem fez o caso'],
+    ['Têm alguma dívida', inteiro(r.comDivida.length), pct(r.comDivida.length, r.n) + ' de quem fez o caso'],
+    ['Dívidas somadas', r.dividaSoma >= 1e6 ? 'R$ ' + (r.dividaSoma / 1e6).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' mi' : brl(r.dividaSoma), 'quanto falta pagar, todas juntas']
+  ].forEach(function (x) { var d = el('div', 'kpi'); d.appendChild(el('p', 'l', x[0])); d.appendChild(el('p', 'v', x[1])); d.appendChild(el('p', 's', x[2])); k.appendChild(d); });
+  $('grade').hidden = !r.n;
+}
+function desenhaMetodo(r) {
+  var m = $('metodo'); m.textContent = '';
+  m.appendChild(el('h2', null, 'Como contamos'));
+  var ul = el('ul');
+  [
+    'A página não pede nome nem telefone. Cada celular ganha um código sorteado, que só serve para contar cada um uma vez; vale a última versão do caso.',
+    '“Abriram a página”: celulares que abriram o link. “Fizeram o caso”: preencheram pelo menos o que entra no mês.',
+    'Os números são os que cada pessoa contou, de cabeça, arredondados de R$ 10 em R$ 10 no próprio celular, antes de sair.',
+    'Quem marcou “Não quero entrar na conta do grupo” não aparece nos números' + (r.fora ? ' (' + pessoas(r.fora) + ', contadas só em “abriram a página”).' : '.'),
+    'A contagem começou em 06/11/2026, quando a página passou a mandar os números: quem fez o caso antes disso não aparece.',
+    'Não é pesquisa por amostra: mostra quem abriu a página, não a empresa inteira. Com menos de ' + MIN_TIPICO + ' respostas, o valor típico não aparece, para ninguém ser reconhecido.'
+  ].forEach(function (t) { ul.appendChild(el('li', null, t)); });
+  m.appendChild(ul);
+}
+
+/* ---------- o filtro por dia, numa linha só, acima de tudo ---------- */
+var dados = null, filtro = 'todas';
+function desenhaFiltros() {
+  var f = $('filtros'); f.textContent = '';
+  f.appendChild(el('span', 'rot', 'Dia do primeiro acesso'));
+  var cont = {}; dados.forEach(function (p) { cont[p.dia] = (cont[p.dia] || 0) + 1; });
+  var dias = Object.keys(cont).sort();
+  if (filtro !== 'todas' && !cont[filtro]) filtro = 'todas';
+  [['todas', 'Todos', dados.length]].concat(dias.map(function (d) { return [d, diaRotulo(d), cont[d]]; })).forEach(function (x) {
+    var b = el('button', 'chip', x[1]); b.type = 'button'; b.setAttribute('aria-pressed', String(filtro === x[0]));
+    b.appendChild(el('small', null, inteiro(x[2])));
+    b.addEventListener('click', function () { filtro = x[0]; desenhaFiltros(); desenha(); });
+    f.appendChild(b);
+  });
+}
+function desenha() {
+  var ps = filtro === 'todas' ? dados : dados.filter(function (p) { return p.dia === filtro; });
+  var r = conta(ps);
+  $('filtro-impresso').textContent = filtro === 'todas' ? 'Todos os dias' : 'Só quem abriu a página em ' + diaRotulo(filtro);
+  desenhaTopo(r);
+  if (r.n) { desenhaPlacar(r); desenhaParcelas(r); desenhaDividas(r); desenhaConsig(r); desenhaGoleiro(r); desenhaFrangos(r); desenha13(r); desenhaLongo(r); desenhaDias(ps); }
+  desenhaMetodo(r);
+}
+
+/* ---------- a dica ao passar o dedo ou o mouse (o valor também está escrito na barra) ---------- */
+var tip = $('tip');
+function mostraDica(b, x, y) { tip.textContent = ''; tip.appendChild(el('b', null, b.dataset.tipV)); tip.appendChild(el('span', null, b.dataset.tipR)); tip.hidden = false; poeDica(x, y); }
+function poeDica(x, y) { var w = tip.offsetWidth, h = tip.offsetHeight; tip.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, x + 12)) + 'px'; tip.style.top = Math.max(8, y - h - 12) + 'px'; }
+document.addEventListener('pointerover', function (e) { var b = e.target.closest && e.target.closest('.br'); if (b) mostraDica(b, e.clientX, e.clientY); });
+document.addEventListener('pointermove', function (e) { if (!tip.hidden) poeDica(e.clientX, e.clientY); });
+document.addEventListener('pointerout', function (e) { var b = e.target.closest && e.target.closest('.br'); if (b && !b.contains(e.relatedTarget)) tip.hidden = true; });
+document.addEventListener('focusin', function (e) { var b = e.target.closest && e.target.closest('.br'); if (b) { var q = b.getBoundingClientRect(); mostraDica(b, q.left + q.width * 0.55, q.top); } });
+document.addEventListener('focusout', function () { tip.hidden = true; });
+window.addEventListener('scroll', function () { tip.hidden = true; }, { passive: true });
+
+/* ---------- dados de exemplo (#demo): inventados, sempre os mesmos, só para ver como fica ---------- */
+function gerarDemo() {
+  var s = 20261106;
+  function rnd() { s = (s * 1664525 + 1013904223) % 4294967296; return s / 4294967296; }
+  function cod() { var t = 'c'; for (var i = 0; i < 20; i++) t += Math.floor(rnd() * 16).toString(16); return t; }
+  function ar(v) { return Math.round(v / 10) * 10; }
+  function vaz(n) { var a = []; for (var i = 0; i < n; i++) a.push(''); return a; }
+  var campos = ['quando', 'codigo', 'tipo', 'via', 'entra', 'casa', 'parc', 'placar', 'rotativo', 'parcelado', 'cheque', 'pessoal', 'consignado', 'outra', 'consig', 'frangos', 'marcados', 'reserva', 'decimo', 'dia'];
+  var FR = [['streaming', 30], ['tarifas', 30], ['seguro', 25], ['celular', 20], ['delivery', 40], ['app', 15]], linhas = [];
+  [Date.UTC(2026, 10, 6, 11, 30), Date.UTC(2026, 10, 9, 11, 30), Date.UTC(2026, 10, 10, 11, 30)].forEach(function (d0) {
+    var total = 240 + Math.floor(rnd() * 80);
+    for (var i = 0; i < total; i++) {
+      var c = cod(), t = d0 + rnd() * 90 * 60000;
+      linhas.push([t, c, 'visita', 'caso'].concat(vaz(16)));
+      if (rnd() > 0.74) continue;
+      var entra = ar(1621 + Math.pow(rnd(), 2) * 2600), casa = ar(entra * (0.5 + rnd() * 0.5)), parc = rnd() < 0.68 ? ar(entra * rnd() * 0.38) : 0;
+      var dv = [rnd() < 0.3 ? ar(200 + rnd() * 2800) : 0, rnd() < 0.24 ? ar(300 + rnd() * 3700) : 0, rnd() < 0.17 ? ar(100 + rnd() * 1400) : 0,
+        rnd() < 0.19 ? ar(500 + rnd() * 7500) : 0, rnd() < 0.38 ? ar(1000 + rnd() * 11000) : 0, rnd() < 0.14 ? ar(100 + rnd() * 1900) : 0];
+      var consig = dv[4] ? (rnd() < 0.3 ? 'troca' : rnd() < 0.64 ? '1' : '2') : 'nao', m = [], fr = 0;
+      FR.forEach(function (f) { if (rnd() < 0.33) { m.push(f[0]); fr += f[1]; } });
+      var reserva = rnd() < 0.56 ? 'nao' : rnd() < 0.55 ? 'pouco' : 'sim', decimo = rnd() < 0.7 ? ar(entra * (0.9 + rnd() * 0.2)) : '';
+      var dia = rnd() < 0.5 ? [1, 2, 2, 2, 3, 5, 5, 10, 15][Math.floor(rnd() * 9)] : '';
+      var reg = [t + (3 + rnd() * 6) * 60000, c, 'caso', 'caso', entra, casa, parc, entra - casa - parc].concat(dv, [consig, fr, m.join(' '), reserva, decimo, dia]);
+      linhas.push(reg);
+      if (rnd() < 0.46) { var pl = reg.slice(); pl[0] += 120000; pl[2] = 'plano'; linhas.push(pl); }
+      if (rnd() < 0.02) linhas.push([reg[0] + 300000, c, 'sair', 'caso'].concat(vaz(16)));
+    }
+  });
+  return { ok: true, campos: campos, linhas: linhas, agora: Date.now() };
+}
+
+/* ---------- carregar: com a chave do link, da planilha; com #demo, os dados de exemplo ---------- */
+var demo = /(^#|&)demo(&|$)/.test(location.hash);
+var chaveLink = (location.hash.match(/chave=([A-Za-z0-9_-]+)/) || [])[1];
+if (chaveLink) guarda('vj-painel-chave', chaveLink);
+var chave = chaveLink || le('vj-painel-chave');
+function aviso(html, cls) { var e = $('estado'); e.className = 'estado' + (cls ? ' ' + cls : ''); e.innerHTML = html; e.hidden = !html; }
+function usa(json) {
+  dados = pessoasDe(json);
+  var q = new Date(json.agora || Date.now());
+  $('hora').textContent = (demo ? 'DADOS DE EXEMPLO · ' : '') + 'Atualizado às ' + q.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' })
+    + ' de ' + q.toLocaleDateString('pt-BR', SP) + '.';
+  $('painel').hidden = false;
+  desenhaFiltros(); desenha();
+}
+function pedeChave() {
+  aviso('<b>Falta a chave do painel.</b> Ela está no LEIA-ME da pasta Calculadora, no link do painel. Ou veja como fica com <a href="#demo">dados de exemplo</a>.'
+    + '<form id="f-chave"><input id="i-chave" autocomplete="off" placeholder="Cole a chave aqui" aria-label="Chave do painel"><button type="submit">Abrir</button></form>');
+  $('f-chave').addEventListener('submit', function (e) {
+    e.preventDefault(); var v = $('i-chave').value.trim().replace(/^.*chave=/, '');
+    if (v) location.hash = 'chave=' + v;
+  });
+}
+function carrega() {
+  if (demo) {
+    aviso('<b>Dados de exemplo, inventados.</b> Servem só para ver como o painel fica. As respostas de verdade aparecem no link com a chave.', 'demo');
+    usa(gerarDemo()); return;
+  }
+  if (!chave) { pedeChave(); return; }
+  $('painel').classList.add('carregando');
+  fetch(FONTE + '?chave=' + encodeURIComponent(chave) + '&t=' + Date.now())
+    .then(function (r) { return r.text(); })
+    .then(function (t) {
+      var j = null; try { j = JSON.parse(t); } catch (e) {}
+      if (!j || !j.ok) {
+        aviso('<b>A planilha ainda não entrega os dados.</b> Falta instalar o script novo nela (passo a passo no LEIA-ME da pasta Calculadora), ou a chave do link não confere. Enquanto isso, veja como fica com <a href="#demo">dados de exemplo</a>.');
+        return;
+      }
+      aviso(''); usa(j);
+    })
+    .catch(function () { aviso('<b>Não deu para falar com a planilha agora.</b> Confira a internet e toque em Atualizar.'); })
+    .then(function () { $('painel').classList.remove('carregando'); });
+}
+$('b-atualizar').addEventListener('click', carrega);
+$('b-pdf').addEventListener('click', function () { window.print(); });
+window.addEventListener('hashchange', function () { location.reload(); });
+setInterval(function () { if (!demo && chave && document.visibilityState === 'visible') carrega(); }, 60000);  /* durante a palestra, atualiza sozinho a cada minuto */
+carrega();
+</script>
+</body>
+</html>
