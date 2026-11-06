@@ -11,9 +11,13 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap">
 <style>
 /* O seu caso · Vira o jogo · Gustavo Trotta
-   Página de celular, anônima: abre direto, sem cadastro, e não envia nada a ninguém.
+   Página de celular, sem cadastro: abre direto e não pede nome nem telefone.
    Desde 02/11/2026 é uma página só: o caso da pessoa, com a semana de treinos no fim
    e um botão que transforma o plano numa imagem, feita no próprio celular.
+   Desde 06/11/2026: o passo 6, o jogo longo (quanto vira o que se guarda por dia, com a Selic de hoje),
+   e a conta do grupo: os números do caso vão, sem nome, sem telefone e arredondados, para a planilha
+   do painel de resultados, que só mostra o grupo. Quem marca "Não quero entrar na conta do grupo"
+   não manda nada, e o que já tinha ido é apagado.
    Um tema só, de propósito: o campo da palestra. */
 :root{
   --grass:#0B4A2C; --grass2:#073420; --lime:#C9F31D; --lime2:#EAFF7A;
@@ -107,6 +111,25 @@ details.semana summary{cursor:pointer;list-style:none;display:flex;justify-conte
 details.semana summary::-webkit-details-marker{display:none}
 details.semana summary::after{content:"+";color:var(--lime);font-size:34px;line-height:1}
 details.semana[open] summary::after{content:"−"}
+/* a conta do grupo: o aviso, com a opção de ficar fora (06/11/2026) */
+.aviso{margin-top:14px;background:rgba(255,255,255,.05);border-left:4px solid var(--lime);border-radius:0 12px 12px 0;padding:12px 14px}
+.card .aviso p{margin:0;font-size:15px;line-height:1.45}
+.aviso b{color:#fff}
+.aviso .fora{display:grid;grid-template-columns:24px 1fr;gap:10px;align-items:center;margin-top:10px;font-weight:600;font-size:14px;color:var(--on);cursor:pointer}
+.aviso .fora input{width:20px;height:20px;accent-color:var(--lime)}
+/* o jogo longo: o que você guardou e o que vira, com a Selic de hoje (06/11/2026) */
+table.longo{width:100%;border-collapse:collapse;margin-top:14px;font-size:15px;font-variant-numeric:tabular-nums}
+table.longo th{font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--gold);text-align:right;padding:0 0 8px}
+table.longo td{padding:9px 0;border-top:1px solid rgba(255,255,255,.12);text-align:right;color:var(--on2);white-space:nowrap}
+table.longo th:first-child,table.longo td:first-child{text-align:left}
+table.longo th + th,table.longo td + td{padding-left:12px}
+table.longo td:first-child{font-weight:600;color:#fff}
+table.longo td.vira{font-family:var(--display);font-size:30px;line-height:1;letter-spacing:.02em;color:var(--lime)}
+.card p.longo-fecho{font-size:15px;margin-top:10px}
+.longo-fecho b{color:#fff}
+.lance table.longo{margin-top:10px;font-size:14px}
+.lance table.longo td{padding:7px 0}
+.lance table.longo td.vira{font-size:24px}
 </style>
 </head>
 <body>
@@ -122,7 +145,11 @@ details.semana[open] summary::after{content:"−"}
 <main id="app">
   <section class="card" id="caso">
     <h2>O seu caso</h2>
-    <p>Cinco passos, uns cinco minutos. No fim, o seu jogo e o seu plano, numa imagem para guardar. <b>Ninguém vê o que você escreve:</b> nada sai do seu celular.</p>
+    <p>Seis passos, uns cinco minutos. No fim, o seu jogo e o seu plano, numa imagem para guardar.</p>
+    <div class="aviso">
+      <p><b>Sem nome e sem telefone:</b> ninguém fica sabendo que é você. Os números entram, sem identificação, numa conta de todo mundo junto: quantos estão no vermelho, quais dívidas aparecem mais. A empresa só recebe essa conta do grupo.</p>
+      <label class="fora"><input type="checkbox" id="c-fora"><span>Não quero entrar na conta do grupo</span></label>
+    </div>
 
     <h3 class="passo"><span>1</span> O placar do mês</h3>
     <p class="dica">Valor aproximado já serve. Ninguém vai conferir.</p>
@@ -173,6 +200,12 @@ details.semana[open] summary::after{content:"−"}
     </div>
     <div class="campo" style="margin-top:12px"><span>Quanto vai cair de 13º<small>o dinheiro das férias paga o janeiro: não conte com ele aqui</small></span><div class="prefixo"><input type="number" id="c-13" inputmode="decimal" min="0" step="50" placeholder="0"></div></div>
 
+    <h3 class="passo"><span>6</span> O jogo longo</h3>
+    <p class="dica">Quanto dá para guardar por dia? Pouco vira muito: o tempo e os juros jogam do seu lado.</p>
+    <div class="campo"><span>Quanto você guarda por dia<small id="c-dia-mes">Sugestão: R$ 2 por dia, R$ 60 por mês</small></span><div class="prefixo"><input type="number" id="c-dia" inputmode="decimal" min="0" step="0.5" placeholder="2"></div></div>
+    <div id="c-longo" aria-live="polite"></div>
+    <p class="nota">Conta feita com a taxa básica de juros de hoje, a Selic: 13,75% ao ano (Banco Central, novembro de 2026), como se ela ficasse igual o tempo todo. Sem descontar imposto nem inflação. É um exemplo, não promessa de rendimento nem indicação de investimento.</p>
+
     <div class="resultado jogo" id="c-res" aria-live="polite"></div>
     <button type="button" class="btn salvar" id="c-salvar" hidden>Salvar o meu plano</button>
     <p class="nota" id="c-img-dica" hidden>Pronto: o seu plano virou esta imagem. Se ela não foi salva sozinha, toque e segure nela e escolha "Salvar imagem".</p>
@@ -217,6 +250,24 @@ function jogoLongo(porDia, anos, taxaMes) {
   var total = p * (Math.pow(1 + i, n) - 1) / i;
   return { total: total, guardou: p * n, rendeu: total - p * n };
 }
+/* o jogo longo com a taxa básica de juros de hoje: a meta da Selic do Copom, 13,75% ao ano desde 17/09/2026
+   (Banco Central, série 432, conferida em 06/11/2026). Bruto: sem imposto nem inflação. */
+var SELIC_ANO = 0.1375, TAXA_MES = mensal(SELIC_ANO), PRAZOS = [5, 10, 20, 30];
+function linhasLongo(dia) {
+  return [['Em', 'Você guardou', 'Vira']].concat(PRAZOS.map(function (a) {
+    var j = jogoLongo(dia, a, TAXA_MES); return [a + ' anos', brl(j.guardou), brl(j.total)];
+  }));
+}
+function tabelaHtml(linhas) {
+  return '<table class="longo"><thead><tr>' + linhas[0].map(function (t) { return '<th scope="col">' + t + '</th>'; }).join('') + '</tr></thead><tbody>'
+    + linhas.slice(1).map(function (l) { return '<tr><td>' + l[0] + '</td><td>' + l[1] + '</td><td class="vira">' + l[2] + '</td></tr>'; }).join('')
+    + '</tbody></table>';
+}
+function fechoLongo(dia) {
+  var j = jogoLongo(dia, 30, TAXA_MES);
+  return 'Em 30 anos, só ' + brl(j.guardou) + ' saem do seu bolso; os outros ' + brl(j.rendeu) + ' vêm dos juros.';
+}
+function brlDia(v) { return v % 1 ? 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : brl(v); }
 function brl(v) {
   var neg = v < 0; v = Math.abs(v);
   var s = v >= 1e6 ? (v / 1e6).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + (v < 2e6 ? ' milhão' : ' milhões')
@@ -300,22 +351,35 @@ function planoDoCaso() {
     it.push({ rot: 'O 13º: ' + brl(decimo), titulo: partes.join(' · '), texto: 'Decida antes de cair: dívida cara primeiro, depois o goleiro.' });
   }
 
-  if (placar <= 0) {
-    it.push({ rot: 'O jogo longo', titulo: 'Depois de virar o placar: ' + brl(2) + ' por dia', texto: 'Em dez anos, ' + brl(jogoLongo(2, 10, 0.01).total) + ', rendendo 1% ao mês.' });
-  } else {
-    var dia = Math.max(2, Math.min(20, Math.floor(placar / 2 / 30)));
-    it.push({ rot: 'O jogo longo', titulo: brl(dia) + ' por dia, no automático',
-      texto: (dia > 2 ? 'É metade do que sobra no mês. ' : '') + 'Rendendo 1% ao mês: em dez anos, ' + brl(jogoLongo(dia, 10, 0.01).total) + '; em trinta, ' + brl(jogoLongo(dia, 30, 0.01).total) + '.' });
-  }
+  /* o jogo longo: o que a pessoa escreveu no passo 6 ou, em branco, a sugestão (R$ 2, ou metade do que sobra, até R$ 20) */
+  var dj = diaDoJogo(placar);
+  it.push({ rot: 'O jogo longo', titulo: (placar <= 0 ? 'Depois de virar o placar: ' : '') + brlDia(dj.valor) + ' por dia, no automático',
+    texto: (dj.metade ? 'É metade do que sobra no mês. ' : '') + 'Com a Selic de hoje, 13,75% ao ano. ' + fechoLongo(dj.valor),
+    linhas: linhasLongo(dj.valor) });
   return it;
+}
+/* quanto guardar por dia: o que a pessoa escreveu no passo 6; em branco, a sugestão da palestra */
+function diaDoJogo(placar) {
+  var d = num('c-dia');
+  if (d > 0) return { valor: d, digitado: true, metade: false };
+  var meio = placar > 0 ? Math.floor(placar / 2 / 30) : 0, s = Math.max(2, Math.min(20, meio));
+  return { valor: s, digitado: false, metade: s > 2 && meio <= 20 };
+}
+function calcLongo(placar) {
+  var d = diaDoJogo(placar);
+  $('c-dia').placeholder = String(d.digitado ? 2 : d.valor);
+  $('c-dia-mes').textContent = (d.digitado ? brlDia(d.valor) + ' por dia são ' : 'Sugestão: ' + brlDia(d.valor) + ' por dia, ')
+    + brl(d.valor * 30) + ' por mês' + (d.metade ? ', metade do que sobra' : '');
+  $('c-longo').innerHTML = tabelaHtml(linhasLongo(d.valor)) + '<p class="longo-fecho">' + fechoLongo(d.valor).replace(/^(.*?;)/, '<b>$1</b>') + '</p>';
 }
 function lanceHtml(it) {
   return '<div class="lance"><span class="rot">' + it.rot + '</span>'
     + (it.num ? '<div class="num' + (it.ruim ? ' ruim' : '') + '">' + it.num + '</div>' : '')
     + (it.selo ? '<span class="selo ' + it.selo + '">' + it.titulo + '</span>' : it.titulo ? '<b>' + it.titulo + '</b>' : '')
-    + (it.texto ? '<p>' + it.texto + '</p>' : '') + '</div>';
+    + (it.texto ? '<p>' + it.texto + '</p>' : '') + (it.linhas ? tabelaHtml(it.linhas) : '') + '</div>';
 }
 function calcCaso() {
+  calcLongo(num('c-entra') - num('c-casa') - num('c-parc'));
   planoAtual = planoDoCaso();
   $('c-salvar').hidden = !planoAtual.length;
   $('c-img').hidden = true; $('c-img-dica').hidden = true;  /* mudou um número: a imagem antiga não vale mais */
@@ -355,6 +419,26 @@ function bloco(ctx, it, x, y, w, pinta) {
     h += 64 + 14;
   } else if (it.titulo) h += escreve(ctx, it.titulo, x, y + h, w, '700 40px ' + INTER, COR.branco, 50, pinta) + 8;
   if (it.texto) h += escreve(ctx, it.texto, x, y + h, w, '30px ' + INTER, COR.texto, 42, pinta);
+  if (it.linhas) h += 18 + tabelaImg(ctx, it.linhas, x, y + h + 18, w, pinta);
+  return h;
+}
+/* a tabela do jogo longo na imagem: o prazo à esquerda; o que guardou e o que vira, à direita */
+function tabelaImg(ctx, linhas, x, y, w, pinta) {
+  var h = 0, c2 = x + w * 0.62, c3 = x + w;
+  linhas.forEach(function (l, i) {
+    var cab = i === 0, ty = y + h + (cab ? 0 : 14);
+    if (pinta) {
+      if (!cab) { ctx.fillStyle = 'rgba(255,255,255,.14)'; ctx.fillRect(x, y + h, w, 2); }
+      ctx.textAlign = 'left'; ctx.font = cab ? '700 22px ' + INTER : '600 30px ' + INTER; ctx.fillStyle = cab ? COR.ouro : COR.branco;
+      ctx.fillText(cab ? l[0].toUpperCase() : l[0], x, ty);
+      ctx.textAlign = 'right'; ctx.font = cab ? '700 22px ' + INTER : '30px ' + INTER; ctx.fillStyle = cab ? COR.ouro : COR.texto;
+      ctx.fillText(cab ? l[1].toUpperCase() : l[1], c2, ty);
+      ctx.font = cab ? '700 22px ' + INTER : '46px ' + BEBAS; ctx.fillStyle = cab ? COR.ouro : COR.lima;
+      ctx.fillText(cab ? l[2].toUpperCase() : l[2], c3, cab ? ty : ty - 6);
+      ctx.textAlign = 'left';
+    }
+    h += cab ? 42 : 62;
+  });
   return h;
 }
 function semana(ctx, x, y, w, pinta) {
@@ -381,7 +465,7 @@ function montaImagem(ctx, itens, L, pinta) {
     y += cartao(ctx, function (x, yy, ww, p) { return bloco(ctx, it, x, yy, ww, p); }, M, y, L, pinta) + 20;
   });
   y += cartao(ctx, function (x, yy, ww, p) { return semana(ctx, x, yy, ww, p); }, M, y, L, pinta) + 34;
-  y += escreve(ctx, 'Feito no seu celular: ninguém viu estes números.', M, y, w, '600 26px ' + INTER, COR.texto, 36, pinta) + 30;
+  y += escreve(ctx, 'Feito sem nome e sem telefone: este plano é seu.', M, y, w, '600 26px ' + INTER, COR.texto, 36, pinta) + 30;
   /* a assinatura: o nome e o site do Gustavo */
   if (pinta) { ctx.fillStyle = COR.borda; ctx.fillRect(M, y, w, 2); }
   y += 28;
@@ -414,18 +498,115 @@ $('c-salvar').addEventListener('click', function () {
     var a = document.createElement('a'); a.href = url; a.download = 'meu-plano-vira-o-jogo.png';
     document.body.appendChild(a); a.click(); a.remove();
   }
+  mandaPlano();  /* depois do compartilhar: quem salvou o plano também conta, sem nome */
 });
 
-document.querySelectorAll('#caso input').forEach(function (el) { el.addEventListener('input', calcCaso); el.addEventListener('change', calcCaso); });
+function mexeu() { calcCaso(); agenda(); }
+document.querySelectorAll('#caso input:not(#c-fora)').forEach(function (el) { el.addEventListener('input', mexeu); el.addEventListener('change', mexeu); });
 $('c-limpar').addEventListener('click', function () {
   document.querySelectorAll('#caso input[type=number]').forEach(function (el) { el.value = el.defaultValue; });
-  document.querySelectorAll('#caso input[type=checkbox]').forEach(function (el) { el.checked = false; });
+  document.querySelectorAll('#caso .f-on').forEach(function (el) { el.checked = false; });  /* a caixinha da conta do grupo fica como a pessoa deixou */
   document.querySelectorAll('#caso input[value=nao]').forEach(function (el) { el.checked = true; });
   calcCaso(); window.scrollTo({ top: $('app').offsetTop - 8, behavior: 'smooth' });
 });
 
+/* ---------- a conta do grupo: os números do caso, sem nome e sem telefone ----------
+   Vão para a planilha do Gustavo (um Apps Script) e dali para o painel de resultados, que só mostra o grupo.
+   O código do celular é sorteado aqui, não diz quem é a pessoa e só serve para contar cada celular uma vez.
+   Os valores saem arredondados de R$ 10 em R$ 10. Cópia local (o arquivo aberto no computador) não manda nada. */
+var COLETA = (location.protocol === 'file:' || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) ? ''
+  : 'https://script.google.com/macros/s/AKfycby0ZBYsnO-4hvHZGK_H1n003qjOdk-CiBt8-tKww35Esy21eucgACDXaieIRs6pBp-H/exec';
+var FRANGO_ID = ['streaming', 'tarifas', 'seguro', 'celular', 'delivery', 'app'];
+var memoria = {}, enviado = '', espera = null, tentativa = 0;
+function guarda(k, v) { memoria[k] = v; try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} }
+function le(k) { try { var v = localStorage.getItem(k); if (v != null) return v; } catch (e) {} return memoria[k] == null ? null : memoria[k]; }
+function codigo() {
+  var c = le('vj-codigo');
+  if (!c) {
+    var a = new Uint8Array(10); c = 'c';
+    try { crypto.getRandomValues(a); } catch (e) { for (var i = 0; i < a.length; i++) a[i] = Math.floor(Math.random() * 256); }
+    for (var j = 0; j < a.length; j++) c += ('0' + a[j].toString(16)).slice(-2);
+    guarda('vj-codigo', c);
+  }
+  return c;
+}
+function fora() { return $('c-fora').checked; }
+function arred(v) { return Math.round(v / 10) * 10; }
+/* o retrato do caso: só números arredondados e as opções marcadas; nada que identifique a pessoa */
+function retrato() {
+  var entra = num('c-entra');
+  if (entra <= 0) return null;
+  var r = { entra: arred(entra), casa: arred(num('c-casa')), parc: arred(num('c-parc')), placar: arred(entra - num('c-casa') - num('c-parc')) };
+  DIVIDAS_CASO.forEach(function (id) { r[id] = arred(num('c-d-' + id)); });
+  var m = [];
+  document.querySelectorAll('.frango').forEach(function (l, i) { if (l.querySelector('.f-on').checked) m.push(FRANGO_ID[i]); });
+  r.consig = marcado('c-consig'); r.frangos = arred(somaFrangos()); r.marcados = m.join(' ');
+  r.reserva = marcado('c-reserva'); r.decimo = arred(num('c-13'));
+  var d = num('c-dia'); r.dia = d > 0 ? Math.round(d * 2) / 2 : '';
+  return r;
+}
+function manda(rec, beacon) {
+  if (!COLETA) return Promise.resolve(false);
+  rec.codigo = codigo(); rec.via = (location.hash || '').replace(/[^a-z0-9-]/gi, '').slice(0, 20);
+  var corpo = JSON.stringify({ origem: 'anonimo', tela: JSON.stringify(rec) });
+  if (beacon && navigator.sendBeacon) { try { if (navigator.sendBeacon(COLETA, corpo)) return Promise.resolve(true); } catch (e) {} }
+  if (!window.fetch) return Promise.resolve(false);
+  return fetch(COLETA, { method: 'POST', body: corpo, keepalive: !!beacon })
+    .then(function (r) { return r.json(); })
+    .then(function (j) { return !!(j && j.ok); })
+    .catch(function () { return false; });
+}
+/* o caso vai uns segundos depois que a pessoa para de digitar; se a planilha estiver ocupada, tenta de novo mais tarde */
+function agenda(ms) { clearTimeout(espera); espera = setTimeout(mandaCaso, ms == null ? 8000 : ms); }
+function mandaCaso() {
+  if (!COLETA || fora()) return;
+  var r = retrato(); if (!r) return;
+  var s = JSON.stringify(r); if (s === enviado) return;
+  r.tipo = 'caso';
+  manda(r).then(function (ok) {
+    if (ok) { if (!fora()) { enviado = s; guarda('vj-mandou', '1'); } tentativa = 0; }
+    else if (tentativa < 5) { tentativa++; agenda(5000 * Math.pow(2, tentativa) + Math.random() * 5000); }
+  });
+}
+function mandaPlano() {
+  if (!COLETA || fora()) return;
+  var r = retrato(); if (!r) return;
+  var s = JSON.stringify(r); r.tipo = 'plano';
+  manda(r).then(function (ok) { if (ok && !fora()) { enviado = s; guarda('vj-mandou', '1'); } });
+}
+/* ao sair da página (ou trocar de app) com algo ainda não mandado: vai de uma vez, sem esperar resposta */
+function saindo() {
+  if (!COLETA || fora()) return;
+  var r = retrato(); if (!r) return;
+  var s = JSON.stringify(r); if (s === enviado) return;
+  clearTimeout(espera); enviado = s; r.tipo = 'caso'; guarda('vj-mandou', '1');
+  manda(r, true);
+}
+/* a visita conta quem abriu a página, mesmo sem preencher; no máximo uma a cada meia hora por celular */
+function visita(vez) {
+  vez = vez || 0;
+  if (!COLETA || fora() || Date.now() - (+le('vj-visita') || 0) < 30 * 60 * 1000) return;
+  manda({ tipo: 'visita' }).then(function (ok) {
+    if (ok) { guarda('vj-visita', String(Date.now())); guarda('vj-mandou', '1'); }
+    else if (vez < 3) setTimeout(function () { visita(vez + 1); }, 15000 + Math.random() * 30000);
+  });
+}
+$('c-fora').checked = le('vj-fora') === '1';
+$('c-fora').addEventListener('change', function () {
+  clearTimeout(espera); enviado = '';
+  if (this.checked) {
+    guarda('vj-fora', '1');
+    if (le('vj-mandou')) { manda({ tipo: 'sair' }); guarda('vj-mandou', null); }  /* pede para apagar o que já tinha ido */
+  } else {
+    guarda('vj-fora', null); agenda(1500);
+  }
+});
+document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') saindo(); });
+window.addEventListener('pagehide', saindo);
+
 /* ---------- abre direto, sem cadastro; os endereços antigos (#placar, #treinos, #caso...) caem aqui ---------- */
 calcCaso();
+setTimeout(function () { visita(0); }, 800 + Math.random() * 3200);
 </script>
 </body>
 </html>
