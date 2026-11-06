@@ -16,8 +16,9 @@
    e um botão que transforma o plano numa imagem, feita no próprio celular.
    Desde 06/11/2026: o passo 6, o jogo longo (quanto vira o que se guarda por dia, com a Selic de hoje),
    e a conta do grupo: os números do caso vão, sem nome, sem telefone e arredondados, para a planilha
-   do painel de resultados, que só mostra o grupo. Quem marca "Não quero entrar na conta do grupo"
-   não manda nada, e o que já tinha ido é apagado.
+   do painel de resultados, que só mostra o grupo. O aviso fica numa linha das notas do fim: o quadro
+   no topo, com a caixinha "Não quero entrar na conta do grupo", saiu no mesmo dia, a pedido do Gustavo
+   (quem marcou a caixinha enquanto ela existia continua fora).
    Um tema só, de propósito: o campo da palestra. */
 :root{
   --grass:#0B4A2C; --grass2:#073420; --lime:#C9F31D; --lime2:#EAFF7A;
@@ -68,6 +69,12 @@ input:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid
 .frango input[type=checkbox]{width:24px;height:24px;accent-color:var(--lime)}
 .frango .prefixo input{padding:9px 10px 9px 38px;font-size:16px}
 .frango .prefixo::before{left:11px;font-size:15px}
+/* o frango que a pessoa escreve (06/11/2026): o nome fica no celular; na conta do grupo, só entra como "outro" */
+.frango .f-nome{width:100%;min-width:0;font:inherit;font-size:15px;padding:9px 10px;border-radius:10px;border:2px solid rgba(255,255,255,.14);background:var(--paper);color:var(--ink)}
+.frango-outro{row-gap:8px}
+.frango-outro .f-nome{grid-column:2 / 4}
+.frango-outro .prefixo{grid-column:3}
+.btn-mais{display:block;width:100%;margin-top:8px;font:inherit;font-size:15px;font-weight:600;padding:10px 12px;border-radius:12px;border:1.5px dashed rgba(201,243,29,.5);background:transparent;color:var(--lime);cursor:pointer}
 .treinos{display:grid;gap:10px;margin-top:14px}
 .treino{display:grid;grid-template-columns:54px 1fr;gap:12px;align-items:start;background:rgba(255,255,255,.06);border-radius:12px;padding:12px 14px}
 .treino .d{font-family:var(--display);font-size:40px;line-height:.9;color:var(--lime)}
@@ -111,12 +118,6 @@ details.semana summary{cursor:pointer;list-style:none;display:flex;justify-conte
 details.semana summary::-webkit-details-marker{display:none}
 details.semana summary::after{content:"+";color:var(--lime);font-size:34px;line-height:1}
 details.semana[open] summary::after{content:"−"}
-/* a conta do grupo: o aviso, com a opção de ficar fora (06/11/2026) */
-.aviso{margin-top:14px;background:rgba(255,255,255,.05);border-left:4px solid var(--lime);border-radius:0 12px 12px 0;padding:12px 14px}
-.card .aviso p{margin:0;font-size:15px;line-height:1.45}
-.aviso b{color:#fff}
-.aviso .fora{display:grid;grid-template-columns:24px 1fr;gap:10px;align-items:center;margin-top:10px;font-weight:600;font-size:14px;color:var(--on);cursor:pointer}
-.aviso .fora input{width:20px;height:20px;accent-color:var(--lime)}
 /* o jogo longo: o que você guardou e o que vira, com a Selic de hoje (06/11/2026) */
 table.longo{width:100%;border-collapse:collapse;margin-top:14px;font-size:15px;font-variant-numeric:tabular-nums}
 table.longo th{font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--gold);text-align:right;padding:0 0 8px}
@@ -146,10 +147,6 @@ table.longo td.vira{font-family:var(--display);font-size:30px;line-height:1;lett
   <section class="card" id="caso">
     <h2>O seu caso</h2>
     <p>Seis passos, uns cinco minutos. No fim, o seu jogo e o seu plano, numa imagem para guardar.</p>
-    <div class="aviso">
-      <p><b>Sem nome e sem telefone:</b> ninguém fica sabendo que é você. Os números entram, sem identificação, numa conta de todo mundo junto: quantos estão no vermelho, quais dívidas aparecem mais. A empresa só recebe essa conta do grupo.</p>
-      <label class="fora"><input type="checkbox" id="c-fora"><span>Não quero entrar na conta do grupo</span></label>
-    </div>
 
     <h3 class="passo"><span>1</span> O placar do mês</h3>
     <p class="dica">Valor aproximado já serve. Ninguém vai conferir.</p>
@@ -180,15 +177,17 @@ table.longo td.vira{font-family:var(--display);font-size:30px;line-height:1;lett
     </div>
 
     <h3 class="passo"><span>4</span> Os frangos</h3>
-    <p class="dica">O que sai da conta todo mês sem você usar. Marque os seus e acerte o valor.</p>
-    <div class="frangos">
-      <label class="frango"><input type="checkbox" class="f-on"><span>Streaming que ninguém assiste</span><span class="prefixo"><input type="number" class="f-v" inputmode="decimal" min="0" step="5" value="30"></span></label>
-      <label class="frango"><input type="checkbox" class="f-on"><span>Pacote de tarifas do banco</span><span class="prefixo"><input type="number" class="f-v" inputmode="decimal" min="0" step="5" value="30"></span></label>
-      <label class="frango"><input type="checkbox" class="f-on"><span>Seguro ou "proteção" que você não pediu</span><span class="prefixo"><input type="number" class="f-v" inputmode="decimal" min="0" step="5" value="25"></span></label>
-      <label class="frango"><input type="checkbox" class="f-on"><span>Pacote do celular maior que o uso</span><span class="prefixo"><input type="number" class="f-v" inputmode="decimal" min="0" step="5" value="20"></span></label>
-      <label class="frango"><input type="checkbox" class="f-on"><span>Taxa de entrega do delivery</span><span class="prefixo"><input type="number" class="f-v" inputmode="decimal" min="0" step="5" value="40"></span></label>
-      <label class="frango"><input type="checkbox" class="f-on"><span>Assinatura de app que renovou sozinha</span><span class="prefixo"><input type="number" class="f-v" inputmode="decimal" min="0" step="5" value="15"></span></label>
+    <p class="dica">O que sai da conta todo mês sem você usar. Marque os seus e acerte o valor. Tem outro? Escreva no fim da lista.</p>
+    <div class="frangos" id="frangos">
+      <label class="frango" data-id="streaming"><input type="checkbox" class="f-on"><span>Streaming que ninguém assiste</span><span class="prefixo"><input type="number" class="f-v" inputmode="decimal" min="0" step="5" value="30"></span></label>
+      <label class="frango" data-id="tarifas"><input type="checkbox" class="f-on"><span>Pacote de tarifas do banco</span><span class="prefixo"><input type="number" class="f-v" inputmode="decimal" min="0" step="5" value="30"></span></label>
+      <label class="frango" data-id="seguro"><input type="checkbox" class="f-on"><span>Seguro ou "proteção" que você não pediu</span><span class="prefixo"><input type="number" class="f-v" inputmode="decimal" min="0" step="5" value="25"></span></label>
+      <label class="frango" data-id="celular"><input type="checkbox" class="f-on"><span>Pacote do celular maior que o uso</span><span class="prefixo"><input type="number" class="f-v" inputmode="decimal" min="0" step="5" value="20"></span></label>
+      <label class="frango" data-id="delivery"><input type="checkbox" class="f-on"><span>Taxa de entrega do delivery</span><span class="prefixo"><input type="number" class="f-v" inputmode="decimal" min="0" step="5" value="40"></span></label>
+      <label class="frango" data-id="app"><input type="checkbox" class="f-on"><span>Assinatura de app que renovou sozinha</span><span class="prefixo"><input type="number" class="f-v" inputmode="decimal" min="0" step="5" value="15"></span></label>
+      <div class="frango frango-outro"><input type="checkbox" class="f-on" aria-label="Contar este frango"><input type="text" class="f-nome" maxlength="40" placeholder="Outro: qual?" aria-label="Qual é o outro frango"><span class="prefixo"><input type="number" class="f-v" inputmode="decimal" min="0" step="5" placeholder="0" aria-label="Quanto sai por mês"></span></div>
     </div>
+    <button type="button" class="btn-mais" id="c-mais-frango">+ Mais um frango</button>
     <p class="nota">Pela regra do Banco Central, todo banco tem que oferecer uma conta com os serviços básicos sem tarifa: pergunte no seu.</p>
 
     <h3 class="passo"><span>5</span> O goleiro e o 13º</h3>
@@ -225,7 +224,7 @@ table.longo td.vira{font-family:var(--display);font-size:30px;line-height:1;lett
       </div>
     </details>
 
-    <p class="nota">Valores aproximados, para você enxergar o seu jogo. Material educativo, não é recomendação. Esta tela não fica salva: guarde a imagem.</p>
+    <p class="nota">Valores aproximados, para você enxergar o seu jogo. Material educativo, não é recomendação. Esta tela não fica salva: guarde a imagem. Sem nome e sem telefone, os números entram só na conta do grupo.</p>
     <p class="nota">A bet não é frango: é um buraco. Se a aposta virou segredo, tem ajuda de graça no SUS: o aplicativo Meu SUS Digital, o posto de saúde (UBS) e o CAPS.</p>
     <button type="button" class="btn sec" id="c-limpar">Apagar e começar de novo</button>
   </section>
@@ -501,12 +500,30 @@ $('c-salvar').addEventListener('click', function () {
   mandaPlano();  /* depois do compartilhar: quem salvou o plano também conta, sem nome */
 });
 
-function mexeu() { calcCaso(); agenda(); }
-document.querySelectorAll('#caso input:not(#c-fora)').forEach(function (el) { el.addEventListener('input', mexeu); el.addEventListener('change', mexeu); });
+/* o frango escrito pela pessoa: escreveu o nome ou o valor, a caixinha marca sozinha (desmarcar continua com ela) */
+function marcaOutro(alvo) {
+  var linha = alvo && alvo.closest && alvo.closest('.frango-outro');
+  if (!linha || alvo.classList.contains('f-on')) return;
+  linha.querySelector('.f-on').checked = linha.querySelector('.f-nome').value.trim() !== ''
+    || parseFloat(String(linha.querySelector('.f-v').value).replace(',', '.')) > 0;
+}
+function mexeu(e) { if (e) marcaOutro(e.target); calcCaso(); agenda(); }
+$('caso').addEventListener('input', mexeu); $('caso').addEventListener('change', mexeu);
+/* mais um frango: outra linha em branco, até seis escritas pela pessoa */
+$('c-mais-frango').addEventListener('click', function () {
+  var outros = document.querySelectorAll('.frango-outro'), nova = outros[0].cloneNode(true);
+  nova.classList.remove('on'); nova.querySelector('.f-on').checked = false;
+  nova.querySelector('.f-nome').value = ''; nova.querySelector('.f-v').value = '';
+  $('frangos').appendChild(nova); nova.querySelector('.f-nome').focus();
+  this.hidden = outros.length + 1 >= 6;
+});
 $('c-limpar').addEventListener('click', function () {
   document.querySelectorAll('#caso input[type=number]').forEach(function (el) { el.value = el.defaultValue; });
-  document.querySelectorAll('#caso .f-on').forEach(function (el) { el.checked = false; });  /* a caixinha da conta do grupo fica como a pessoa deixou */
+  document.querySelectorAll('#caso input[type=text]').forEach(function (el) { el.value = ''; });
+  document.querySelectorAll('#caso input[type=checkbox]').forEach(function (el) { el.checked = false; });
   document.querySelectorAll('#caso input[value=nao]').forEach(function (el) { el.checked = true; });
+  document.querySelectorAll('.frango-outro').forEach(function (l, i) { if (i) l.remove(); });
+  $('c-mais-frango').hidden = false;
   calcCaso(); window.scrollTo({ top: $('app').offsetTop - 8, behavior: 'smooth' });
 });
 
@@ -516,7 +533,6 @@ $('c-limpar').addEventListener('click', function () {
    Os valores saem arredondados de R$ 10 em R$ 10. Cópia local (o arquivo aberto no computador) não manda nada. */
 var COLETA = (location.protocol === 'file:' || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) ? ''
   : 'https://script.google.com/macros/s/AKfycby0ZBYsnO-4hvHZGK_H1n003qjOdk-CiBt8-tKww35Esy21eucgACDXaieIRs6pBp-H/exec';
-var FRANGO_ID = ['streaming', 'tarifas', 'seguro', 'celular', 'delivery', 'app'];
 var memoria = {}, enviado = '', espera = null, tentativa = 0;
 function guarda(k, v) { memoria[k] = v; try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} }
 function le(k) { try { var v = localStorage.getItem(k); if (v != null) return v; } catch (e) {} return memoria[k] == null ? null : memoria[k]; }
@@ -530,7 +546,8 @@ function codigo() {
   }
   return c;
 }
-function fora() { return $('c-fora').checked; }
+/* quem marcou "Não quero entrar na conta do grupo" enquanto a caixinha existia (06/11/2026) continua fora */
+function fora() { return le('vj-fora') === '1'; }
 function arred(v) { return Math.round(v / 10) * 10; }
 /* o retrato do caso: só números arredondados e as opções marcadas; nada que identifique a pessoa */
 function retrato() {
@@ -538,8 +555,12 @@ function retrato() {
   if (entra <= 0) return null;
   var r = { entra: arred(entra), casa: arred(num('c-casa')), parc: arred(num('c-parc')), placar: arred(entra - num('c-casa') - num('c-parc')) };
   DIVIDAS_CASO.forEach(function (id) { r[id] = arred(num('c-d-' + id)); });
-  var m = [];
-  document.querySelectorAll('.frango').forEach(function (l, i) { if (l.querySelector('.f-on').checked) m.push(FRANGO_ID[i]); });
+  var m = [], outro = false;
+  document.querySelectorAll('.frango').forEach(function (l) {
+    if (!l.querySelector('.f-on').checked) return;
+    if (l.dataset.id) m.push(l.dataset.id); else outro = true;  /* o frango escrito pela pessoa conta só como "outro": o nome não sai do celular */
+  });
+  if (outro) m.push('outro');
   r.consig = marcado('c-consig'); r.frangos = arred(somaFrangos()); r.marcados = m.join(' ');
   r.reserva = marcado('c-reserva'); r.decimo = arred(num('c-13'));
   var d = num('c-dia'); r.dia = d > 0 ? Math.round(d * 2) / 2 : '';
@@ -591,16 +612,6 @@ function visita(vez) {
     else if (vez < 3) setTimeout(function () { visita(vez + 1); }, 15000 + Math.random() * 30000);
   });
 }
-$('c-fora').checked = le('vj-fora') === '1';
-$('c-fora').addEventListener('change', function () {
-  clearTimeout(espera); enviado = '';
-  if (this.checked) {
-    guarda('vj-fora', '1');
-    if (le('vj-mandou')) { manda({ tipo: 'sair' }); guarda('vj-mandou', null); }  /* pede para apagar o que já tinha ido */
-  } else {
-    guarda('vj-fora', null); agenda(1500);
-  }
-});
 document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') saindo(); });
 window.addEventListener('pagehide', saindo);
 
