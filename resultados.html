@@ -196,7 +196,8 @@ var DIVIDAS = [
 ];
 var CARAS = ['rotativo', 'parcelado', 'cheque', 'pessoal'];
 var FRANGOS = { streaming: 'Streaming que ninguém assiste', tarifas: 'Pacote de tarifas do banco', seguro: 'Seguro ou “proteção” que não pediu',
-  celular: 'Pacote do celular maior que o uso', delivery: 'Taxa de entrega do delivery', app: 'Assinatura de app que renovou sozinha' };
+  celular: 'Pacote do celular maior que o uso', delivery: 'Taxa de entrega do delivery', app: 'Assinatura de app que renovou sozinha',
+  outro: 'Outro, escrito pela pessoa' };
 var MIN_TIPICO = 5;  /* com menos respostas que isso, o valor típico não aparece: ninguém deve ser reconhecido */
 
 function $(id) { return document.getElementById(id); }
@@ -379,7 +380,7 @@ function desenhaFrangos(r) {
   var a = corpo('c-frangos'), cs = r.casos;
   var com = cs.filter(function (c) { return nnum(c.frangos) > 0; }), cont = {};
   Object.keys(FRANGOS).forEach(function (k) { cont[k] = 0; });
-  cs.forEach(function (c) { String(c.marcados || '').split(' ').forEach(function (k) { if (cont.hasOwnProperty(k)) cont[k]++; }); });
+  cs.forEach(function (c) { var visto = {}; String(c.marcados || '').split(' ').forEach(function (k) { if (cont.hasOwnProperty(k) && !visto[k]) { visto[k] = 1; cont[k]++; } }); });
   var d = el('p', 'destaque', emCada10(com.length, r.n) + ' marcaram pelo menos um frango');
   a.appendChild(d);
   barras(a, Object.keys(FRANGOS).map(function (k) { return { rot: FRANGOS[k], n: cont[k] }; }).sort(function (x, y) { return y.n - x.n; }), r.n);
@@ -458,10 +459,10 @@ function desenhaMetodo(r) {
     'A página não pede nome nem telefone. Cada celular ganha um código sorteado, que só serve para contar cada um uma vez; vale a última versão do caso.',
     '“Abriram a página”: celulares que abriram o link. “Fizeram o caso”: preencheram pelo menos o que entra no mês.',
     'Os números são os que cada pessoa contou, de cabeça, arredondados de R$ 10 em R$ 10 no próprio celular, antes de sair.',
-    'Quem marcou “Não quero entrar na conta do grupo” não aparece nos números' + (r.fora ? ' (' + pessoas(r.fora) + ', contadas só em “abriram a página”).' : '.'),
+    r.fora ? 'Quem pediu para ficar fora da conta do grupo não aparece nos números (' + pessoas(r.fora) + ', contadas só em “abriram a página”).' : '',
     'A contagem começou em 06/11/2026, quando a página passou a mandar os números: quem fez o caso antes disso não aparece.',
     'Não é pesquisa por amostra: mostra quem abriu a página, não a empresa inteira. Com menos de ' + MIN_TIPICO + ' respostas, o valor típico não aparece, para ninguém ser reconhecido.'
-  ].forEach(function (t) { ul.appendChild(el('li', null, t)); });
+  ].forEach(function (t) { if (t) ul.appendChild(el('li', null, t)); });
   m.appendChild(ul);
 }
 
@@ -508,7 +509,7 @@ function gerarDemo() {
   function ar(v) { return Math.round(v / 10) * 10; }
   function vaz(n) { var a = []; for (var i = 0; i < n; i++) a.push(''); return a; }
   var campos = ['quando', 'codigo', 'tipo', 'via', 'entra', 'casa', 'parc', 'placar', 'rotativo', 'parcelado', 'cheque', 'pessoal', 'consignado', 'outra', 'consig', 'frangos', 'marcados', 'reserva', 'decimo', 'dia'];
-  var FR = [['streaming', 30], ['tarifas', 30], ['seguro', 25], ['celular', 20], ['delivery', 40], ['app', 15]], linhas = [];
+  var FR = [['streaming', 30], ['tarifas', 30], ['seguro', 25], ['celular', 20], ['delivery', 40], ['app', 15], ['outro', 45]], linhas = [];
   [Date.UTC(2026, 10, 6, 11, 30), Date.UTC(2026, 10, 9, 11, 30), Date.UTC(2026, 10, 10, 11, 30)].forEach(function (d0) {
     var total = 240 + Math.floor(rnd() * 80);
     for (var i = 0; i < total; i++) {
